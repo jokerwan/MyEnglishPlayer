@@ -4,8 +4,8 @@
 
 - HTML 原型已接入：`english-listening-app-resource-detail-v52-resource-tree-study-toggle.html`
 - 页面与组件拆解见：`FRONTEND_MVP_BREAKDOWN.md`
-- 当前阶段：只做拆解与规划，不写页面实现代码
-- 后续实现顺序：由用户逐页指定
+- 已完成首页实现：`app/(tabs)/index.tsx`
+- 其他页面等待逐页实现
 
 ## Phase 0: 原型拆解（已完成）
 
@@ -18,44 +18,45 @@
 
 ## Phase 1: Expo + TypeScript 基础工程
 
-- [ ] 初始化 Expo TypeScript 项目
-- [ ] 接入 Expo Router
-- [ ] 配置 `tsconfig.json` 严格模式
-- [ ] 创建 `app/` 与 `src/` 目录骨架
-- [ ] 从 HTML 提取设计 Token 到 `src/constants`
-- [ ] 创建 `src/types` 共享类型
-- [ ] 创建 `src/data` mock 数据文件
-- [ ] 实现 `useToast`、`useGreeting`、`useMockPlayer` 基础 hooks
+- [x] 初始化 Expo TypeScript 项目
+- [x] 接入 Expo Router
+- [x] 配置 `tsconfig.json` 严格模式
+- [x] 创建 `app/` 与 `src/` 目录骨架
+- [x] 从 HTML 提取设计 Token 到 `src/constants`
+- [x] 创建 `src/types` 共享类型
+- [x] 创建 `src/data` mock 数据文件
+- [x] 实现 `useToast`、`useGreeting`、全局 Player 基础 hooks
 
 ## Phase 2: 通用基础组件
 
 - [ ] `Screen`
-- [ ] `AppText`
 - [ ] `AppButton`
 - [ ] `AppIconButton`
 - [ ] `AppCard`
 - [ ] `Chip`
-- [ ] `ProgressBar`
 - [ ] `SegmentedControl`
 - [ ] `SearchBar`
 - [ ] `EmptyState`
-- [ ] `Toast`
 - [ ] `GradientHeader`
-- [ ] `BottomTabBar`
 - [ ] `StackNavBar`
-- [ ] `MiniPlayer`
+- [x] `AppText`
+- [x] `ProgressBar`
+- [x] `Toast`
+- [x] `BottomTabBar`
+- [x] `MiniPlayer`
 
 ## Phase 3: Tab 页面（按用户指定顺序逐个实现）
 
 ### 3.1 首页 `page-home`
 
-- [ ] 路由：`/(tabs)/index`
-- [ ] `HomeHero`
-- [ ] `HomeStatsCard`
-- [ ] `HomeQuickActions`
-- [ ] `HomeLearningPlanCard`
-- [ ] 接入 `mockHome.ts`、`mockStudyPlans.ts`
-- [ ] 跳转：上传 / 我的资源 / 我的学习 / 资源详情
+- [x] 路由：`/(tabs)/index`
+- [x] `HomeHero`
+- [x] `HomeStatsCard`
+- [x] `HomeQuickActions`
+- [x] `HomeLearningPlanCard` / `HomeLearningList`
+- [x] 接入 `mockHome.ts`、`mockStudyPlans.ts`
+- [x] 跳转：上传 / 我的资源 / 我的学习（目标页暂为占位）
+- [x] 播放按钮联动全局 MiniPlayer + Toast
 
 ### 3.2 听力库 `page-listening`
 
@@ -131,15 +132,15 @@
 
 ## Phase 5: 全局能力串联
 
-- [ ] 根布局挂载 `MiniPlayer` + `BottomTabBar`
+- [x] 根布局挂载 `MiniPlayer` + `BottomTabBar`
 - [ ] 在 upload / resources / resource-detail 页面隐藏 MiniPlayer
-- [ ] 首页、听力库、学习列表与播放器状态联动
+- [x] 首页播放按钮与播放器状态联动
 - [ ] 资源详情与全局播放器双向同步标题、进度、播放态
-- [ ] Toast 全局复用
+- [x] Toast 全局复用
 
 ## Phase 6: MVP 验证
 
-- [ ] TypeScript 检查通过
+- [x] TypeScript 检查通过
 - [ ] Expo 运行通过
 - [ ] 4 个 Tab 可切换
 - [ ] 栈式页面可进入并可返回
