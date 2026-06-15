@@ -1,61 +1,162 @@
 # TASKS
 
-## 当前约束
+## 当前状态
 
-仓库中尚未包含已确认的 HTML 高保真原型。不要开始实现页面，直到 HTML 已加入仓库并完成
-`FRONTEND_MVP_BREAKDOWN.md` 中的页面和组件映射。
+- HTML 原型已接入：`english-listening-app-resource-detail-v52-resource-tree-study-toggle.html`
+- 页面与组件拆解见：`FRONTEND_MVP_BREAKDOWN.md`
+- 当前阶段：只做拆解与规划，不写页面实现代码
+- 后续实现顺序：由用户逐页指定
 
-## Phase 0: 原型接入与拆解
+## Phase 0: 原型拆解（已完成）
 
-- [ ] 将已确认的 HTML 原型文件加入仓库。
-- [ ] 记录 HTML 中所有页面、弹窗和交互状态。
-- [ ] 将每个 HTML 页面映射到一个 Expo Router 路由。
-- [ ] 从 HTML 中抽取重复 UI 模式，更新组件清单。
-- [ ] 将 HTML 中出现的静态展示数据整理为 typed mock 数据。
-- [ ] 确认 MVP 中哪些交互只需要本地状态，不接后端。
+- [x] 接入 HTML 高保真原型
+- [x] 梳理 8 个主页面 + 子视图 + 弹层
+- [x] 输出 Expo 项目目录
+- [x] 输出组件清单
+- [x] 输出 mock 数据结构
+- [x] 输出页面到路由映射
 
 ## Phase 1: Expo + TypeScript 基础工程
 
-- [ ] 初始化 Expo TypeScript 项目。
-- [ ] 如存在多页面导航，接入 Expo Router。
-- [ ] 配置严格 TypeScript 检查。
-- [ ] 创建规划中的 `app/` 和 `src/` 目录结构。
-- [ ] 根据 HTML 提取颜色、字体、间距、圆角等设计常量。
-- [ ] 在 `src/data` 下创建 mock 数据文件。
-- [ ] 在 `src/types` 下创建共享 TypeScript 类型。
+- [ ] 初始化 Expo TypeScript 项目
+- [ ] 接入 Expo Router
+- [ ] 配置 `tsconfig.json` 严格模式
+- [ ] 创建 `app/` 与 `src/` 目录骨架
+- [ ] 从 HTML 提取设计 Token 到 `src/constants`
+- [ ] 创建 `src/types` 共享类型
+- [ ] 创建 `src/data` mock 数据文件
+- [ ] 实现 `useToast`、`useGreeting`、`useMockPlayer` 基础 hooks
 
-## Phase 2: 通用 UI 组件
+## Phase 2: 通用基础组件
 
-- [ ] 实现 `Screen`。
-- [ ] 实现 `AppText`。
-- [ ] 实现 `AppButton`。
-- [ ] 实现 `AppIconButton`。
-- [ ] 实现 `AppCard`。
-- [ ] 实现 `ProgressBar`。
-- [ ] 实现 `EmptyState`。
-- [ ] 对照 HTML 验证通用组件视觉一致性。
+- [ ] `Screen`
+- [ ] `AppText`
+- [ ] `AppButton`
+- [ ] `AppIconButton`
+- [ ] `AppCard`
+- [ ] `Chip`
+- [ ] `ProgressBar`
+- [ ] `SegmentedControl`
+- [ ] `SearchBar`
+- [ ] `EmptyState`
+- [ ] `Toast`
+- [ ] `GradientHeader`
+- [ ] `BottomTabBar`
+- [ ] `StackNavBar`
+- [ ] `MiniPlayer`
 
-## Phase 3: 第一个页面
+## Phase 3: Tab 页面（按用户指定顺序逐个实现）
 
-- [ ] 等用户指定第一个要实现的页面。
-- [ ] 只实现该页面及其必需组件。
-- [ ] 只使用本地 mock 数据。
-- [ ] 保持路由、文案、布局和产品逻辑与 HTML 一致。
-- [ ] 在 Expo 中运行并检查页面。
-- [ ] 完成后提交并推送，再进入下一个页面。
+### 3.1 首页 `page-home`
 
-## Phase 4: 后续页面逐个实现
+- [ ] 路由：`/(tabs)/index`
+- [ ] `HomeHero`
+- [ ] `HomeStatsCard`
+- [ ] `HomeQuickActions`
+- [ ] `HomeLearningPlanCard`
+- [ ] 接入 `mockHome.ts`、`mockStudyPlans.ts`
+- [ ] 跳转：上传 / 我的资源 / 我的学习 / 资源详情
 
-- [ ] 等用户逐页指定实现顺序。
-- [ ] 优先复用已有通用组件。
-- [ ] 仅当 HTML 出现新的可复用模式时新增组件。
-- [ ] mock 数据保持 typed，并统一放在 `src/data`。
-- [ ] 后端接入阶段开始前，不加入 API 假设。
+### 3.2 听力库 `page-listening`
 
-## Phase 5: MVP 验证
+- [ ] 路由：`/(tabs)/listening`
+- [ ] `ListeningFilterChips`
+- [ ] `ListeningCourseCard`
+- [ ] 接入 `mockListeningCourses.ts`
+- [ ] 点击课程更新全局 MiniPlayer
 
-- [ ] 运行 TypeScript 检查。
-- [ ] 如已配置 lint，运行 lint。
-- [ ] 运行 Expo App，检查导航和页面状态。
-- [ ] 将每个已实现页面与 HTML 原型逐项对照。
-- [ ] 如果原型存在歧义，先记录并确认，不擅自修改产品逻辑。
+### 3.3 单词本 `page-vocabulary`
+
+- [ ] 路由：`/(tabs)/vocabulary`
+- [ ] `VocabularyModeTabs`
+- [ ] `WordStudyCard`
+- [ ] `WordDetailPanel`
+- [ ] `WordActionBar`
+- [ ] 接入 `mockVocabulary.ts`
+
+### 3.4 我的 `page-profile`
+
+- [ ] 路由：`/(tabs)/profile`
+- [ ] `ProfileHeader`
+- [ ] `ProfileStatsRow`
+- [ ] `SettingsRow`
+- [ ] 接入 `mockUser.ts`
+
+## Phase 4: 栈式页面（按用户指定顺序逐个实现）
+
+### 4.1 上传资源 `page-upload`
+
+- [ ] 路由：`/upload`
+- [ ] `UploadFileCard`
+- [ ] `UploadChoiceGroup`
+- [ ] `UploadFolderPicker`
+- [ ] `UploadBottomAction`
+- [ ] 本地校验：音视频必选、名称必填
+- [ ] 上传成功态与跳转「我的资源」
+
+### 4.2 我的资源 `page-resources`
+
+- [ ] 路由：`/resources`
+- [ ] `ResourceFolderCard`
+- [ ] `ResourceFolderStudyCard`
+- [ ] `ResourceTypeFilter`
+- [ ] `ResourceListItem`
+- [ ] `ResourceFolderDialog`
+- [ ] `ResourceEmptyState`
+- [ ] 搜索、筛选、加入学习本地逻辑
+
+### 4.3 我的学习 `page-learning`
+
+- [ ] 路由：`/learning`
+- [ ] `LearningStatusSegment`
+- [ ] `LearningToolbar`
+- [ ] `LearningPlanSwipeRow`
+- [ ] `LearningPlanCard`
+- [ ] dashboard 视图：`lm-dashboard`
+- [ ] 详情视图：`/learning/[planId]`
+- [ ] `LearningResourceCard`
+- [ ] 左滑取消、选择模式、排序本地逻辑
+
+### 4.4 资源详情 / 精听页 `page-resource-detail`
+
+- [ ] 路由：`/resource/[resourceId]`
+- [ ] `ResourceVideoStage`
+- [ ] `ResourceMetaRow`
+- [ ] `TranscriptList` / `TranscriptLine`
+- [ ] `DetailToolbar` / `DetailControlButton`
+- [ ] `IntensiveListenOverlay`
+- [ ] `ResourceInfoSheet`
+- [ ] `ResourceNotesPane` / `ResourceWordsPane` / `ResourceStatsPane`
+- [ ] 调速、句级切换、精听、跟读、完成学习本地逻辑
+
+## Phase 5: 全局能力串联
+
+- [ ] 根布局挂载 `MiniPlayer` + `BottomTabBar`
+- [ ] 在 upload / resources / resource-detail 页面隐藏 MiniPlayer
+- [ ] 首页、听力库、学习列表与播放器状态联动
+- [ ] 资源详情与全局播放器双向同步标题、进度、播放态
+- [ ] Toast 全局复用
+
+## Phase 6: MVP 验证
+
+- [ ] TypeScript 检查通过
+- [ ] Expo 运行通过
+- [ ] 4 个 Tab 可切换
+- [ ] 栈式页面可进入并可返回
+- [ ] 每个已实现页面与 HTML 原型逐项对照
+- [ ] 不擅自修改产品文案与交互逻辑
+
+## 推荐实现顺序（待你确认）
+
+1. Phase 1 基础工程
+2. Phase 2 通用组件
+3. 首页
+4. 资源详情 / 精听页
+5. 我的资源
+6. 我的学习
+7. 上传资源
+8. 听力库
+9. 单词本
+10. 我的
+
+> 实际开发时以你指定的页面顺序为准，每次只实现一个页面及其必需组件。
