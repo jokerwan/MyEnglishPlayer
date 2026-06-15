@@ -6,6 +6,7 @@
 - 页面与组件拆解见：`FRONTEND_MVP_BREAKDOWN.md`
 - 已完成首页实现：`app/(tabs)/index.tsx`
 - 已完成上传页实现：`app/upload.tsx`
+- 已完成我的资源页实现：`app/resources/index.tsx`
 - 其他页面等待逐页实现
 
 ## Phase 0: 原型拆解（已完成）
@@ -36,8 +37,8 @@
 - [ ] `AppCard`
 - [ ] `Chip`
 - [ ] `SegmentedControl`
-- [ ] `SearchBar`
-- [ ] `EmptyState`
+- [x] `SearchBar`（资源页 `ResourceSearchBar`）
+- [x] `EmptyState`（资源页 `ResourceEmptyState`）
 - [ ] `GradientHeader`
 - [x] `StackNavBar`
 - [x] `AppText`
@@ -99,14 +100,16 @@
 
 ### 4.2 我的资源 `page-resources`
 
-- [ ] 路由：`/resources`
-- [ ] `ResourceFolderCard`
-- [ ] `ResourceFolderStudyCard`
-- [ ] `ResourceTypeFilter`
-- [ ] `ResourceListItem`
-- [ ] `ResourceFolderDialog`
-- [ ] `ResourceEmptyState`
-- [ ] 搜索、筛选、加入学习本地逻辑
+- [x] 路由：`/resources`
+- [x] `ResourceNavBar`
+- [x] `ResourceSearchBar`
+- [x] `ResourceFolderCard` / `ResourceFolderSection`
+- [x] `ResourceFolderStudyCard`
+- [x] `ResourceTypeFilterRow`
+- [x] `ResourceListItem`
+- [x] `ResourceListHeader`
+- [x] `ResourceEmptyState`
+- [x] 搜索、筛选、加入学习本地逻辑
 
 ### 4.3 我的学习 `page-learning`
 
