@@ -7,6 +7,7 @@
 - 已完成首页实现：`app/(tabs)/index.tsx`
 - 已完成上传页实现：`app/upload.tsx`
 - 已完成我的资源页实现：`app/resources/index.tsx`
+- 已完成我的学习页实现：`app/learning/index.tsx`、`app/learning/[planId].tsx`
 - 其他页面等待逐页实现
 
 ## Phase 0: 原型拆解（已完成）
@@ -113,15 +114,15 @@
 
 ### 4.3 我的学习 `page-learning`
 
-- [ ] 路由：`/learning`
-- [ ] `LearningStatusSegment`
-- [ ] `LearningToolbar`
-- [ ] `LearningPlanSwipeRow`
-- [ ] `LearningPlanCard`
-- [ ] dashboard 视图：`lm-dashboard`
-- [ ] 详情视图：`/learning/[planId]`
-- [ ] `LearningResourceCard`
-- [ ] 左滑取消、选择模式、排序本地逻辑
+- [x] 路由：`/learning`
+- [x] `LearningStatusSegment`
+- [x] `LearningToolbar`
+- [x] `LearningPlanSwipeRow`
+- [x] `LearningPlanCard`
+- [x] dashboard 视图：`lm-dashboard`
+- [x] 详情视图：`/learning/[planId]`
+- [x] `LearningResourceCard`
+- [x] 左滑取消、选择模式、排序本地逻辑
 
 ### 4.4 资源详情 / 精听页 `page-resource-detail`
 
