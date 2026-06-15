@@ -5,6 +5,7 @@
 - HTML 原型已接入：`english-listening-app-resource-detail-v52-resource-tree-study-toggle.html`
 - 页面与组件拆解见：`FRONTEND_MVP_BREAKDOWN.md`
 - 已完成首页实现：`app/(tabs)/index.tsx`
+- 已完成上传页实现：`app/upload.tsx`
 - 其他页面等待逐页实现
 
 ## Phase 0: 原型拆解（已完成）
@@ -38,7 +39,7 @@
 - [ ] `SearchBar`
 - [ ] `EmptyState`
 - [ ] `GradientHeader`
-- [ ] `StackNavBar`
+- [x] `StackNavBar`
 - [x] `AppText`
 - [x] `ProgressBar`
 - [x] `Toast`
@@ -87,13 +88,14 @@
 
 ### 4.1 上传资源 `page-upload`
 
-- [ ] 路由：`/upload`
-- [ ] `UploadFileCard`
-- [ ] `UploadChoiceGroup`
-- [ ] `UploadFolderPicker`
-- [ ] `UploadBottomAction`
-- [ ] 本地校验：音视频必选、名称必填
-- [ ] 上传成功态与跳转「我的资源」
+- [x] 路由：`/upload`
+- [x] `UploadFileCard`
+- [x] `UploadChoiceGroup`
+- [x] `UploadFolderPicker`
+- [x] `UploadBottomAction`
+- [x] `StackNavBar`
+- [x] 本地校验：音视频必选、名称必填
+- [x] 上传成功态与跳转「我的资源」
 
 ### 4.2 我的资源 `page-resources`
 
