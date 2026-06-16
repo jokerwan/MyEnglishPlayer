@@ -2,6 +2,8 @@ import { createContext, useCallback, useContext, useMemo, useState, type ReactNo
 
 import { mockPlayerState } from '@/data/mockPlayer';
 import type { PlayerState } from '@/types/player';
+import { coverCodeFromTitle } from '@/utils/resourceDetail';
+import { resolvePlayerResourceId } from '@/utils/playerNavigation';
 
 type ToastContextValue = {
   message: string | null;
@@ -38,10 +40,13 @@ export function AppProviders({ children }: { children: ReactNode }) {
   }, []);
 
   const playPlan = useCallback((title: string, subtitle = '来自：我的学习') => {
+    const resourceId = resolvePlayerResourceId(title);
     setPlayer((current) => ({
       ...current,
+      resourceId,
       title,
       subtitle,
+      cover: coverCodeFromTitle(title),
       isPlaying: true,
       currentTimeSeconds: 0,
     }));
@@ -54,7 +59,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
         resourceId,
         title,
         subtitle,
-        cover: title.slice(0, 3).toUpperCase(),
+        cover: coverCodeFromTitle(title),
         isPlaying: true,
       }));
     },

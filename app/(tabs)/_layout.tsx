@@ -7,6 +7,7 @@ import { AppText } from '@/components/common/AppText';
 import { MiniPlayer } from '@/components/navigation/MiniPlayer';
 import { colors } from '@/constants/colors';
 import { usePlayer } from '@/hooks/useAppContext';
+import { getPlayerDetailRoute } from '@/utils/playerNavigation';
 
 const TAB_CONFIG = [
   { name: 'index', label: '首页', icon: 'home' },
@@ -44,8 +45,9 @@ function AppTabBar({ state, navigation }: AppTabBarProps) {
     <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 8) }]}>
       <MiniPlayer
         onOpenDetail={() => {
-          if (player.resourceId) {
-            router.push(`/resource/${player.resourceId}`);
+          const route = getPlayerDetailRoute(player);
+          if (route) {
+            router.push(route);
           }
         }}
       />

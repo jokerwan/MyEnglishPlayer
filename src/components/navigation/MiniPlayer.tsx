@@ -1,5 +1,6 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useRef } from 'react';
+import { Pressable, StyleSheet, View, type GestureResponderEvent } from 'react-native';
 
 import { AppText } from '@/components/common/AppText';
 import { ProgressBar } from '@/components/common/ProgressBar';
@@ -11,14 +12,59 @@ type MiniPlayerProps = {
   onOpenDetail?: () => void;
 };
 
+const SWIPE_UP_THRESHOLD = 36;
+const SWIPE_HORIZONTAL_TOLERANCE = 70;
+
 export function MiniPlayer({ onOpenDetail }: MiniPlayerProps) {
   const { player, togglePlay } = usePlayer();
+  const startRef = useRef({ x: 0, y: 0 });
+  const ignoreClickRef = useRef(false);
   const progress = player.durationSeconds
     ? (player.currentTimeSeconds / player.durationSeconds) * 100
     : 0;
 
+  const handleOpenDetail = () => {
+    onOpenDetail?.();
+  };
+
+  const handlePressIn = (event: GestureResponderEvent) => {
+    startRef.current = {
+      x: event.nativeEvent.pageX,
+      y: event.nativeEvent.pageY,
+    };
+  };
+
+  const handlePressOut = (event: GestureResponderEvent) => {
+    const dy = startRef.current.y - event.nativeEvent.pageY;
+    const dx = Math.abs(event.nativeEvent.pageX - startRef.current.x);
+    if (dy > SWIPE_UP_THRESHOLD && dx < SWIPE_HORIZONTAL_TOLERANCE) {
+      ignoreClickRef.current = true;
+      handleOpenDetail();
+      setTimeout(() => {
+        ignoreClickRef.current = false;
+      }, 260);
+    }
+  };
+
+  const handlePress = () => {
+    if (ignoreClickRef.current) {
+      return;
+    }
+    handleOpenDetail();
+  };
+
   return (
-    <Pressable style={styles.container} onPress={onOpenDetail}>
+    <Pressable
+      style={styles.container}
+      onPress={handlePress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      accessibilityRole="button"
+      accessibilityLabel="打开当前播放资源详情，上拉也可进入详情"
+    >
+      <View style={styles.affordance} />
+      <AppText style={styles.hint}>点击 / 上拉详情 · 下拉隐藏</AppText>
+
       <View style={styles.main}>
         <View style={styles.cover}>
           <AppText style={styles.coverText}>{player.cover}</AppText>
@@ -61,12 +107,30 @@ export function MiniPlayer({ onOpenDetail }: MiniPlayerProps) {
 
 const styles = StyleSheet.create({
   container: {
+    position: 'relative',
     backgroundColor: colors.playerBg,
     borderTopWidth: 1,
     borderTopColor: colors.lineSoft,
-    paddingTop: 10,
+    paddingTop: 8,
     paddingHorizontal: 16,
     paddingBottom: 8,
+  },
+  affordance: {
+    width: 38,
+    height: 4,
+    alignSelf: 'center',
+    marginBottom: 9,
+    borderRadius: 999,
+    backgroundColor: '#dbe7e6',
+  },
+  hint: {
+    position: 'absolute',
+    right: 16,
+    top: 10,
+    color: '#94a3b8',
+    fontSize: 10,
+    fontWeight: '800',
+    opacity: 0.82,
   },
   main: {
     flexDirection: 'row',
@@ -89,6 +153,7 @@ const styles = StyleSheet.create({
   meta: {
     flex: 1,
     minWidth: 0,
+    paddingRight: 92,
   },
   title: {
     color: colors.textMain,
