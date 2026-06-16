@@ -123,6 +123,7 @@
 - [x] 详情视图：`/learning/[planId]`
 - [x] `LearningResourceCard`
 - [x] 左滑取消、选择模式、排序本地逻辑
+- [x] 树状列表：合集展开/收起、嵌套资源、搜索、长按批量操作
 
 ### 4.4 资源详情 / 精听页 `page-resource-detail`
 

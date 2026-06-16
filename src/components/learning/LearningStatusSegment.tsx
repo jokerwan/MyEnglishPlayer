@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 import { AppText } from '@/components/common/AppText';
-import { colors } from '@/constants/colors';
 import type { StudyPlanStatus } from '@/types/studyPlan';
 
 type LearningStatusSegmentProps = {
@@ -18,7 +18,7 @@ export function LearningStatusSegment({
   onChange,
 }: LearningStatusSegmentProps) {
   return (
-    <View style={styles.segment}>
+    <View style={styles.wrap}>
       <Pressable
         style={[styles.button, value === 'learning' && styles.buttonActive]}
         onPress={() => onChange('learning')}
@@ -51,63 +51,60 @@ export function LearningStatusSegment({
 }
 
 const styles = StyleSheet.create({
-  segment: {
+  wrap: {
+    alignSelf: 'flex-start',
     flexDirection: 'row',
     gap: 8,
-    padding: 8,
-    borderRadius: 28,
-    backgroundColor: 'rgba(255,255,255,0.92)',
+    padding: 4,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.72)',
     borderWidth: 1,
-    borderColor: 'rgba(226,232,240,0.92)',
+    borderColor: 'rgba(226,232,240,0.88)',
     shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.045,
-    shadowRadius: 28,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.035,
+    shadowRadius: 20,
     elevation: 2,
   },
   button: {
-    flex: 1,
-    minHeight: 50,
+    height: 36,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    borderRadius: 22,
+    gap: 6,
+    paddingHorizontal: 14,
+    borderRadius: 999,
   },
   buttonActive: {
-    backgroundColor: colors.primary,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.18,
-    shadowRadius: 26,
-    elevation: 3,
+    backgroundColor: '#ecfeff',
+    borderWidth: 1,
+    borderColor: 'rgba(153,246,228,0.75)',
   },
   label: {
-    color: '#475569',
-    fontSize: 15,
+    color: '#64748b',
+    fontSize: 13,
     fontWeight: '900',
-    letterSpacing: -0.15,
   },
   labelActive: {
-    color: colors.white,
+    color: '#0f766e',
   },
   badge: {
-    minWidth: 24,
-    height: 24,
+    minWidth: 20,
+    height: 20,
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(148,163,184,0.18)',
   },
   badgeActive: {
-    backgroundColor: 'rgba(255,255,255,0.18)',
+    backgroundColor: 'rgba(20,184,166,0.10)',
   },
   badgeText: {
     color: '#64748b',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '900',
   },
   badgeTextActive: {
-    color: colors.white,
+    color: '#0f766e',
   },
 });

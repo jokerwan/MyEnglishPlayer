@@ -1,36 +1,65 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
-import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { LearningBatchBar } from '@/components/learning/LearningBatchBar';
 import { LearningEmptyState } from '@/components/learning/LearningEmptyState';
-import { LearningHint } from '@/components/learning/LearningHint';
 import { LearningNavBar } from '@/components/learning/LearningNavBar';
-import { LearningPlanSwipeRow } from '@/components/learning/LearningPlanSwipeRow';
+import { LearningSearchBar } from '@/components/learning/LearningSearchBar';
 import { LearningStatusSegment } from '@/components/learning/LearningStatusSegment';
-import { LearningToolbar } from '@/components/learning/LearningToolbar';
+import { LearningTreePlanRow } from '@/components/learning/LearningTreePlanRow';
 import { colors } from '@/constants/colors';
 import { useToast } from '@/hooks/useAppContext';
 import { useLearningManager } from '@/hooks/useLearningManager';
+import { stripResourceExtension } from '@/utils/learningManager';
 
 export default function LearningScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { showToast } = useToast();
   const manager = useLearningManager();
-  const [openSwipeId, setOpenSwipeId] = useState<string | null>(null);
 
-  const handleComplete = (planId: string, title: string) => {
+  const handleCompletePlan = (planId: string, title: string) => {
     manager.completePlan(planId);
-    showToast(`已标记「${title}」为完成`);
+    showToast(`已完成：${title}`);
   };
 
-  const handleCancel = (planId: string, title: string) => {
-    manager.cancelPlan(planId);
-    setOpenSwipeId((current) => (current === planId ? null : current));
-    showToast(`已取消「${title}」`);
+  const handleRestartPlan = (planId: string, title: string) => {
+    manager.restartPlan(planId);
+    showToast(`已重新学习：${title}`);
+  };
+
+  const handleRemovePlan = (planId: string, title: string, status: 'learning' | 'done') => {
+    manager.removePlan(planId);
+    showToast(status === 'done' ? `已移除：${title}` : `已取消学习：${title}`);
+  };
+
+  const handleCompleteResource = (planId: string, resourceId: string) => {
+    const plan = manager.plans.find((item) => item.id === planId);
+    const resource = plan?.resources.find((item) => item.id === resourceId);
+    manager.completeResource(planId, resourceId);
+    if (resource) {
+      showToast(`已完成：${stripResourceExtension(resource.title)}`);
+    }
+  };
+
+  const handleRestartResource = (planId: string, resourceId: string) => {
+    const plan = manager.plans.find((item) => item.id === planId);
+    const resource = plan?.resources.find((item) => item.id === resourceId);
+    manager.restartResource(planId, resourceId);
+    if (resource) {
+      showToast(`已重新学习：${stripResourceExtension(resource.title)}`);
+    }
+  };
+
+  const handleRemoveResource = (planId: string, resourceId: string) => {
+    const plan = manager.plans.find((item) => item.id === planId);
+    const resource = plan?.resources.find((item) => item.id === resourceId);
+    manager.removeResource(planId, resourceId);
+    if (resource) {
+      showToast(`已移除：${stripResourceExtension(resource.title)}`);
+    }
   };
 
   const handleBulkComplete = () => {
@@ -38,8 +67,8 @@ export default function LearningScreen() {
     showToast(result.message);
   };
 
-  const handleBulkCancel = () => {
-    const result = manager.bulkCancel();
+  const handleBulkRemove = () => {
+    const result = manager.bulkRemove();
     showToast(result.message);
   };
 
@@ -58,51 +87,54 @@ export default function LearningScreen() {
         style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         <LearningStatusSegment
           value={manager.statusFilter}
           learningCount={manager.counts.learning}
           doneCount={manager.counts.done}
-          onChange={(value) => {
-            manager.setStatusFilter(value);
-            setOpenSwipeId(null);
-          }}
+          onChange={manager.setStatusFilter}
         />
 
-        <LearningHint />
-
-        <LearningToolbar
-          sortOrder={manager.sortOrder}
-          selectMode={manager.selectMode}
-          onSortPress={manager.toggleSortOrder}
-          onSelectModePress={manager.toggleSelectMode}
+        <LearningSearchBar
+          value={manager.searchQuery}
+          onChangeText={manager.setSearchQuery}
+          onClear={() => manager.setSearchQuery('')}
         />
 
         {manager.selectMode ? (
           <LearningBatchBar
-            selectedCount={manager.selectedCount}
             allSelected={manager.allVisibleSelected}
             onSelectAll={manager.selectAllVisible}
             onComplete={handleBulkComplete}
-            onCancel={handleBulkCancel}
+            onRemove={handleBulkRemove}
           />
         ) : null}
 
         <View style={styles.list}>
           {manager.visiblePlans.length > 0 ? (
             manager.visiblePlans.map((plan) => (
-              <LearningPlanSwipeRow
+              <LearningTreePlanRow
                 key={plan.id}
                 plan={plan}
+                expanded={manager.isPlanExpanded(plan.id)}
                 selectMode={manager.selectMode}
-                selected={manager.selectedIds.includes(plan.id)}
-                swipeEnabled={!manager.selectMode}
-                isOpen={openSwipeId === plan.id}
-                onOpenChange={(planId) => setOpenSwipeId(planId)}
-                onPress={() => router.push(`/learning/${plan.id}`)}
-                onCompletePress={() => handleComplete(plan.id, plan.title)}
-                onCancelPress={() => handleCancel(plan.id, plan.title)}
-                onSelectPress={() => manager.toggleSelect(plan.id)}
+                selected={manager.isPlanSelected(plan.id)}
+                partial={manager.isPlanPartial(plan)}
+                resources={manager.visibleTreeResources(plan)}
+                isResourceSelected={(resourceId) => manager.isResourceSelected(plan.id, resourceId)}
+                onToggleExpanded={() => manager.togglePlanExpanded(plan.id)}
+                onLongPress={manager.enterSelectMode}
+                onSelect={() => manager.togglePlanSelect(plan.id)}
+                onComplete={() => handleCompletePlan(plan.id, plan.title)}
+                onRestart={() => handleRestartPlan(plan.id, plan.title)}
+                onRemove={() => handleRemovePlan(plan.id, plan.title, plan.status)}
+                onResourceLongPress={() => manager.enterSelectMode()}
+                onResourcePress={() => showToast(`管理资源：${plan.title}`)}
+                onResourceSelect={(resourceId) => manager.toggleResourceSelect(plan.id, resourceId)}
+                onResourceComplete={(resourceId) => handleCompleteResource(plan.id, resourceId)}
+                onResourceRestart={(resourceId) => handleRestartResource(plan.id, resourceId)}
+                onResourceRemove={(resourceId) => handleRemoveResource(plan.id, resourceId)}
               />
             ))
           ) : (
@@ -125,14 +157,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    paddingHorizontal: 14,
-    paddingTop: 16,
+    paddingHorizontal: 16,
+    paddingTop: 14,
   },
   list: {
-    gap: 13,
+    gap: 12,
     marginTop: 14,
   },
   safeBottom: {
-    height: 24,
+    height: 120,
   },
 });

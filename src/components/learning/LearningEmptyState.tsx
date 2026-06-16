@@ -5,7 +5,7 @@ import { AppText } from '@/components/common/AppText';
 export function LearningEmptyState() {
   return (
     <View style={styles.empty}>
-      <AppText style={styles.text}>当前分类下还没有学习合集</AppText>
+      <AppText style={styles.text}>当前没有符合状态的学习内容</AppText>
     </View>
   );
 }

@@ -1,39 +1,41 @@
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/common/AppText';
 
 type LearningBatchBarProps = {
-  selectedCount: number;
   allSelected: boolean;
   onSelectAll: () => void;
   onComplete: () => void;
-  onCancel: () => void;
+  onRemove: () => void;
 };
 
 export function LearningBatchBar({
-  selectedCount,
   allSelected,
   onSelectAll,
   onComplete,
-  onCancel,
+  onRemove,
 }: LearningBatchBarProps) {
   return (
     <View style={styles.bar}>
-      <View style={styles.left}>
-        <Pressable style={styles.selectAllButton} onPress={onSelectAll}>
-          <AppText style={styles.selectAllText}>{allSelected ? '取消全选' : '全选'}</AppText>
-        </Pressable>
-        <AppText style={styles.countText}>已选 {selectedCount} 项</AppText>
-      </View>
+      <Pressable style={styles.button} onPress={onSelectAll}>
+        <FontAwesome
+          name={allSelected ? 'minus-circle' : 'check-circle'}
+          size={13}
+          color="#0f766e"
+        />
+        <AppText style={styles.buttonText}>{allSelected ? '取消全选' : '全选'}</AppText>
+      </Pressable>
 
-      <View style={styles.actions}>
-        <Pressable style={styles.actionButton} onPress={onComplete}>
-          <AppText style={styles.actionText}>完成</AppText>
-        </Pressable>
-        <Pressable style={[styles.actionButton, styles.dangerButton]} onPress={onCancel}>
-          <AppText style={[styles.actionText, styles.dangerText]}>取消</AppText>
-        </Pressable>
-      </View>
+      <Pressable style={[styles.button, styles.primaryButton]} onPress={onComplete}>
+        <FontAwesome name="check" size={13} color="#ffffff" />
+        <AppText style={[styles.buttonText, styles.primaryText]}>完成学习</AppText>
+      </Pressable>
+
+      <Pressable style={[styles.button, styles.dangerButton]} onPress={onRemove}>
+        <FontAwesome name="trash-o" size={13} color="#e11d48" />
+        <AppText style={[styles.buttonText, styles.dangerText]}>移除</AppText>
+      </Pressable>
     </View>
   );
 }
@@ -43,70 +45,52 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 10,
-    marginTop: 12,
-    paddingVertical: 9,
-    paddingLeft: 13,
-    paddingRight: 10,
+    gap: 8,
+    marginTop: 10,
+    padding: 8,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: 'rgba(255,255,255,0.94)',
     borderWidth: 1,
-    borderColor: 'rgba(226,232,240,0.9)',
+    borderColor: 'rgba(226,232,240,0.94)',
     shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 8 },
+    shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.04,
-    shadowRadius: 20,
+    shadowRadius: 24,
     elevation: 2,
   },
-  left: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 9,
+  button: {
     flex: 1,
-    minWidth: 0,
-  },
-  selectAllButton: {
-    height: 28,
-    paddingHorizontal: 10,
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(236,254,255,0.82)',
-    borderWidth: 1,
-    borderColor: 'rgba(153,246,228,0.76)',
-  },
-  selectAllText: {
-    color: '#0f766e',
-    fontSize: 11,
-    fontWeight: '900',
-  },
-  countText: {
-    color: '#475569',
-    fontSize: 12,
-    fontWeight: '900',
-  },
-  actions: {
+    height: 42,
     flexDirection: 'row',
-    gap: 7,
-  },
-  actionButton: {
-    minHeight: 34,
-    paddingHorizontal: 13,
-    borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#ecfeff',
+    gap: 6,
+    paddingHorizontal: 8,
+    borderRadius: 999,
+    backgroundColor: '#f0fdfa',
     borderWidth: 1,
-    borderColor: 'rgba(153,246,228,0.88)',
+    borderColor: 'rgba(153,246,228,0.86)',
   },
-  actionText: {
+  buttonText: {
     color: '#0f766e',
     fontSize: 12,
     fontWeight: '900',
+  },
+  primaryButton: {
+    backgroundColor: '#14b8a6',
+    borderColor: '#14b8a6',
+    shadowColor: '#14b8a6',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.16,
+    shadowRadius: 18,
+    elevation: 2,
+  },
+  primaryText: {
+    color: '#ffffff',
   },
   dangerButton: {
-    backgroundColor: '#fff7f8',
-    borderColor: '#fecdd3',
+    backgroundColor: '#ffffff',
+    borderColor: 'rgba(254,205,211,0.96)',
   },
   dangerText: {
     color: '#e11d48',
