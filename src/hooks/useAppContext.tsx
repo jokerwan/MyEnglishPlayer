@@ -5,6 +5,8 @@ import type { PlayerState } from '@/types/player';
 import { coverCodeFromTitle } from '@/utils/resourceDetail';
 import { resolvePlayerResourceId } from '@/utils/playerNavigation';
 
+import { AppDataProvider } from './useAppData';
+
 type ToastContextValue = {
   message: string | null;
   visible: boolean;
@@ -87,7 +89,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
   return (
     <ToastContext.Provider value={toastValue}>
-      <PlayerContext.Provider value={playerValue}>{children}</PlayerContext.Provider>
+      <PlayerContext.Provider value={playerValue}>
+        <AppDataProvider>{children}</AppDataProvider>
+      </PlayerContext.Provider>
     </ToastContext.Provider>
   );
 }

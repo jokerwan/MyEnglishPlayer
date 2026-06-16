@@ -5,23 +5,42 @@ import {
   MOCK_MEDIA_TITLE,
   MOCK_SUBTITLE_FILE_NAME,
 } from '@/constants/upload';
-import { mockUploadFolders } from '@/data/mockUploadFolders';
+import { useAppData } from '@/hooks/useAppData';
 import type { UploadCategory, UploadDifficulty, UploadFolderOption } from '@/types/upload';
 
+const difficultyToLevel: Record<UploadDifficulty, '初级' | '中级' | '高级'> = {
+  入门: '初级',
+  适中: '中级',
+  挑战: '高级',
+};
+
 export function useUploadForm() {
+  const appData = useAppData();
   const [mediaSelected, setMediaSelected] = useState(false);
   const [subtitleSelected, setSubtitleSelected] = useState(false);
   const [resourceName, setResourceName] = useState('');
   const [difficulty, setDifficulty] = useState<UploadDifficulty>('入门');
   const [category, setCategory] = useState<UploadCategory>('儿童启蒙');
-  const [folders, setFolders] = useState<UploadFolderOption[]>(mockUploadFolders);
-  const [selectedFolderId, setSelectedFolderId] = useState(mockUploadFolders[0].id);
   const [showNewFolderForm, setShowNewFolderForm] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [mediaErrorVisible, setMediaErrorVisible] = useState(false);
   const [nameErrorVisible, setNameErrorVisible] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [successFolderName, setSuccessFolderName] = useState<string>();
+  const [uploadedResourceId, setUploadedResourceId] = useState<string | null>(null);
+
+  const folders: UploadFolderOption[] = useMemo(
+    () =>
+      appData.folders.map((folder) => ({
+        id: folder.id,
+        name: folder.name,
+        description: folder.id === 'default' ? '不选择时自动保存到这里' : folder.name,
+        isDefault: folder.id === 'default',
+      })),
+    [appData.folders],
+  );
+
+  const [selectedFolderId, setSelectedFolderId] = useState('default');
 
   const selectedFolder = useMemo(
     () => folders.find((folder) => folder.id === selectedFolderId) ?? folders[0],
@@ -33,6 +52,7 @@ export function useUploadForm() {
   const resetSuccessState = useCallback(() => {
     setUploadSuccess(false);
     setSuccessFolderName(undefined);
+    setUploadedResourceId(null);
   }, []);
 
   const selectMediaFile = useCallback(() => {
@@ -61,22 +81,18 @@ export function useUploadForm() {
   }, []);
 
   const addNewFolder = useCallback(() => {
-    const folderName = newFolderName.trim() || '新建文件夹';
-    const newFolder: UploadFolderOption = {
-      id: `folder-${Date.now()}`,
-      name: folderName,
-      description: '0 个资源',
-      resourceCount: 0,
-    };
-
-    setFolders((current) => [...current, newFolder]);
-    setSelectedFolderId(newFolder.id);
+    const result = appData.addFolder(newFolderName);
+    if (result.ok && result.folderName) {
+      const created = appData.folders.find((folder) => folder.name === result.folderName);
+      if (created) {
+        setSelectedFolderId(created.id);
+      }
+    }
     setNewFolderName('');
     setShowNewFolderForm(false);
     resetSuccessState();
-
-    return folderName;
-  }, [newFolderName, resetSuccessState]);
+    return result.folderName ?? (newFolderName.trim() || '新建文件夹');
+  }, [appData, newFolderName, resetSuccessState]);
 
   const handleResourceNameChange = useCallback(
     (value: string) => {
@@ -98,10 +114,45 @@ export function useUploadForm() {
       return { ok: false as const, message: '请输入资源名称' };
     }
 
+    const folder = appData.folders.find((item) => item.id === selectedFolderId) ?? appData.folders[0];
+    const resource = appData.uploadResource({
+      title: resourceName.trim(),
+      folderId: folder.id,
+      folderName: folder.name,
+      type: /\.mp3|\.wav|\.m4a/i.test(resourceName) ? 'audio' : 'video',
+      level: difficultyToLevel[difficulty],
+      hasSubtitle: subtitleSelected,
+      tag: category,
+    });
+
     setUploadSuccess(true);
-    setSuccessFolderName(selectedFolder.name);
-    return { ok: true as const, message: '上传完成', folderName: selectedFolder.name };
-  }, [mediaSelected, resourceName, selectedFolder.name]);
+    setSuccessFolderName(folder.name);
+    setUploadedResourceId(resource.id);
+    return { ok: true as const, message: '上传完成', folderName: folder.name, resourceId: resource.id };
+  }, [
+    appData,
+    category,
+    difficulty,
+    mediaSelected,
+    resourceName,
+    selectedFolderId,
+    subtitleSelected,
+  ]);
+
+  const openAddToStudyPicker = useCallback(() => {
+    if (!uploadedResourceId) {
+      return;
+    }
+    const resource = appData.resources.find((item) => item.id === uploadedResourceId);
+    if (!resource) {
+      return;
+    }
+    appData.openCollectionPicker({
+      mode: 'add',
+      resourceIds: [uploadedResourceId],
+      folderNames: [resource.folder],
+    });
+  }, [appData, uploadedResourceId]);
 
   return {
     mediaSelected,
@@ -120,6 +171,7 @@ export function useUploadForm() {
     nameErrorVisible,
     uploadSuccess,
     successFolderName,
+    uploadedResourceId,
     canUpload,
     setDifficulty,
     setCategory,
@@ -132,5 +184,8 @@ export function useUploadForm() {
     handleResourceNameChange,
     finishUpload,
     resetSuccessState,
+    openAddToStudyPicker,
+    pickerRequest: appData.pickerRequest,
+    closeCollectionPicker: appData.closeCollectionPicker,
   };
 }

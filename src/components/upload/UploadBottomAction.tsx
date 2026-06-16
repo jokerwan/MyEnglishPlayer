@@ -10,6 +10,8 @@ type UploadBottomActionProps = {
   uploadSuccess: boolean;
   successFolderName?: string;
   onFinishUpload: () => void;
+  onAddToStudy: () => void;
+  onSkipStudy: () => void;
   onViewResources: () => void;
 };
 
@@ -18,6 +20,8 @@ export function UploadBottomAction({
   uploadSuccess,
   successFolderName,
   onFinishUpload,
+  onAddToStudy,
+  onSkipStudy,
   onViewResources,
 }: UploadBottomActionProps) {
   const insets = useSafeAreaInsets();
@@ -30,8 +34,16 @@ export function UploadBottomAction({
             <FontAwesome name="check-circle" size={14} color={colors.trendGreen} />
             <AppText style={styles.successText}>已上传到：{successFolderName}</AppText>
           </View>
-          <Pressable style={styles.secondaryButton} onPress={onViewResources}>
-            <AppText style={styles.secondaryButtonText}>去我的资源查看</AppText>
+          <View style={styles.successActions}>
+            <Pressable style={styles.primaryButton} onPress={onAddToStudy}>
+              <AppText style={styles.primaryButtonText}>加入学习</AppText>
+            </Pressable>
+            <Pressable style={styles.secondaryButton} onPress={onSkipStudy}>
+              <AppText style={styles.secondaryButtonText}>稍后再说</AppText>
+            </Pressable>
+          </View>
+          <Pressable style={styles.linkButton} onPress={onViewResources}>
+            <AppText style={styles.linkButtonText}>去资源库查看</AppText>
           </Pressable>
         </View>
       ) : (
@@ -105,7 +117,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '900',
   },
+  successActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
   secondaryButton: {
+    flex: 1,
     height: 48,
     borderRadius: 18,
     alignItems: 'center',
@@ -118,5 +135,15 @@ const styles = StyleSheet.create({
     color: colors.playBtn,
     fontSize: 15,
     fontWeight: '900',
+  },
+  linkButton: {
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  linkButtonText: {
+    color: '#64748b',
+    fontSize: 13,
+    fontWeight: '800',
   },
 });

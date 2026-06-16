@@ -11,13 +11,13 @@ export type FolderStudyStatus = 'none' | 'learning' | 'done' | 'partial' | 'all-
 export type ResourceLibraryItem = {
   id: string;
   title: string;
+  folderId: string;
   folder: string;
   type: ResourceType;
   duration: string;
   level: ResourceLevel;
   hasSubtitle: boolean;
   tag: string;
-  studyStatus: ResourceStudyStatus;
   searchTitle: string;
 };
 

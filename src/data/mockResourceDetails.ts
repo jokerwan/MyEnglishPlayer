@@ -1,28 +1,10 @@
-import { mockResourceItems } from '@/data/mockResources';
-import { mockStudyPlans } from '@/data/mockStudyPlans';
+import { seedResources } from '@/data/seedLibrary';
 import type { ResourceDetail } from '@/types/resourceDetail';
-import {
-  buildResourceDetailFromLibraryItem,
-  buildResourceDetailFromStudyResource,
-} from '@/utils/resourceDetail';
+import { buildResourceDetailFromLibraryItem } from '@/utils/resourceDetail';
 
-const libraryDetails = Object.fromEntries(
-  mockResourceItems.map((item) => [item.id, buildResourceDetailFromLibraryItem(item)]),
-) as Record<string, ResourceDetail>;
-
-const studyDetails = Object.fromEntries(
-  mockStudyPlans.flatMap((plan) =>
-    plan.resources.map((resource) => [
-      resource.id,
-      buildResourceDetailFromStudyResource(resource, plan.title),
-    ]),
-  ),
-) as Record<string, ResourceDetail>;
-
-const mockResourceDetails: Record<string, ResourceDetail> = {
-  ...libraryDetails,
-  ...studyDetails,
-};
+const mockResourceDetails: Record<string, ResourceDetail> = Object.fromEntries(
+  seedResources.map((item) => [item.id, buildResourceDetailFromLibraryItem(item)]),
+);
 
 export function getResourceDetailById(resourceId: string) {
   return mockResourceDetails[resourceId];
@@ -30,4 +12,8 @@ export function getResourceDetailById(resourceId: string) {
 
 export function getAllResourceDetails() {
   return Object.values(mockResourceDetails);
+}
+
+export function registerResourceDetail(detail: ResourceDetail) {
+  mockResourceDetails[detail.id] = detail;
 }

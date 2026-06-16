@@ -23,7 +23,6 @@ function RootNavigator() {
         <Stack.Screen name="upload" />
         <Stack.Screen name="resources/index" />
         <Stack.Screen name="learning/index" />
-        <Stack.Screen name="learning/[planId]" />
         <Stack.Screen name="resource/[resourceId]" />
       </Stack>
       <Toast message={message} visible={visible} />

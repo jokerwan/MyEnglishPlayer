@@ -144,9 +144,14 @@ function buildStats(studyStatus: ResourceDetail['studyStatus'], hasSubtitle: boo
   };
 }
 
-export function buildResourceDetailFromLibraryItem(item: ResourceLibraryItem): ResourceDetail {
+export function buildResourceDetailFromLibraryItem(
+  item: ResourceLibraryItem,
+  options?: { studyStatus?: ResourceDetail['studyStatus']; progress?: number },
+): ResourceDetail {
   const transcriptPack = getTranscriptPack(item.title);
-  const progress = item.studyStatus === 'done' ? 100 : item.studyStatus === 'learning' ? 41 : 0;
+  const studyStatus = options?.studyStatus ?? 'none';
+  const progress =
+    options?.progress ?? (studyStatus === 'done' ? 100 : studyStatus === 'learning' ? 41 : 0);
 
   return {
     id: item.id,
@@ -158,12 +163,12 @@ export function buildResourceDetailFromLibraryItem(item: ResourceLibraryItem): R
     level: item.level,
     hasSubtitle: item.hasSubtitle,
     tag: item.tag,
-    studyStatus: item.studyStatus,
+    studyStatus,
     progress,
     cover: coverCodeFromTitle(item.title),
     transcript: transcriptPack.lines,
     words: transcriptPack.words,
-    stats: buildStats(item.studyStatus, item.hasSubtitle),
+    stats: buildStats(studyStatus, item.hasSubtitle),
   };
 }
 

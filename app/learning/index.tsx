@@ -1,5 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -16,9 +17,16 @@ import { stripResourceExtension } from '@/utils/learningManager';
 
 export default function LearningScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ expand?: string }>();
   const insets = useSafeAreaInsets();
   const { showToast } = useToast();
   const manager = useLearningManager();
+
+  useEffect(() => {
+    if (typeof params.expand === 'string' && params.expand) {
+      manager.expandCollection(params.expand);
+    }
+  }, [manager, params.expand]);
 
   const handleCompletePlan = (planId: string, title: string) => {
     manager.completePlan(planId);

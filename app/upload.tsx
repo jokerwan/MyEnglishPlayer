@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { StackNavBar } from '@/components/common/StackNavBar';
 import { AppText } from '@/components/common/AppText';
+import { CollectionPickerSheet } from '@/components/study/CollectionPickerSheet';
 import { UploadBottomAction } from '@/components/upload/UploadBottomAction';
 import { UploadChoiceGroup } from '@/components/upload/UploadChoiceGroup';
 import { UploadFileCard } from '@/components/upload/UploadFileCard';
@@ -43,6 +44,15 @@ export default function UploadScreen() {
 
   const handleViewResources = () => {
     router.push('/resources');
+  };
+
+  const handleAddToStudy = () => {
+    form.openAddToStudyPicker();
+  };
+
+  const handleSkipStudy = () => {
+    form.resetSuccessState();
+    showToast('已保存到资源库，可稍后加入学习');
   };
 
   return (
@@ -143,7 +153,18 @@ export default function UploadScreen() {
         uploadSuccess={form.uploadSuccess}
         successFolderName={form.successFolderName}
         onFinishUpload={handleFinishUpload}
+        onAddToStudy={handleAddToStudy}
+        onSkipStudy={handleSkipStudy}
         onViewResources={handleViewResources}
+      />
+
+      <CollectionPickerSheet
+        request={form.pickerRequest}
+        onClose={form.closeCollectionPicker}
+        onCompleted={(message) => {
+          showToast(message);
+          form.resetSuccessState();
+        }}
       />
     </View>
   );

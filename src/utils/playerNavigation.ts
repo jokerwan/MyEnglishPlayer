@@ -21,7 +21,7 @@ export function resolvePlayerResourceId(title: string) {
   }
 
   if (/单元\s*12|health|健康与生活/i.test(title)) {
-    return 'news-1';
+    return 'news-health-life';
   }
   if (/color|颜色/i.test(title)) {
     return 'colors-kids';

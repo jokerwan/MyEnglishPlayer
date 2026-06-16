@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 
-import { mockStudyPlans } from '@/data/mockStudyPlans';
+import { useAppData } from '@/hooks/useAppData';
 import type { StudyPlan, StudyPlanStatus } from '@/types/studyPlan';
 import {
   countPlansByStatus,
@@ -15,7 +15,7 @@ import {
 } from '@/utils/learningManager';
 
 export function useLearningManager() {
-  const [plans, setPlans] = useState<StudyPlan[]>(mockStudyPlans);
+  const appData = useAppData();
   const [statusFilter, setStatusFilter] = useState<StudyPlanStatus>('learning');
   const [searchQuery, setSearchQuery] = useState('');
   const [resourceSortOrder] = useState<LearningSortOrder>('asc');
@@ -23,7 +23,9 @@ export function useLearningManager() {
   const [selectMode, setSelectMode] = useState(false);
   const [selectedPlanIds, setSelectedPlanIds] = useState<string[]>([]);
   const [selectedResourceKeys, setSelectedResourceKeys] = useState<string[]>([]);
+  const [expandCollectionId, setExpandCollectionId] = useState<string | null>(null);
 
+  const plans = appData.studyPlans;
   const query = normalizedSearch(searchQuery);
   const counts = useMemo(() => countPlansByStatus(plans), [plans]);
 
@@ -92,33 +94,47 @@ export function useLearningManager() {
     [exitSelectMode],
   );
 
+  const isPlanExpanded = useCallback(
+    (planId: string) => {
+      if (expandCollectionId === planId) {
+        return true;
+      }
+      return !collapsedPlanIds.includes(planId);
+    },
+    [collapsedPlanIds, expandCollectionId],
+  );
+
   const togglePlanExpanded = useCallback((planId: string) => {
+    setExpandCollectionId(null);
     setCollapsedPlanIds((current) =>
       current.includes(planId) ? current.filter((id) => id !== planId) : [...current, planId],
     );
   }, []);
 
-  const isPlanExpanded = useCallback(
-    (planId: string) => !collapsedPlanIds.includes(planId),
-    [collapsedPlanIds],
-  );
+  const expandCollection = useCallback((collectionId: string) => {
+    setExpandCollectionId(collectionId);
+    setCollapsedPlanIds((current) => current.filter((id) => id !== collectionId));
+  }, []);
 
-  const togglePlanSelect = useCallback((planId: string) => {
-    const plan = plans.find((item) => item.id === planId);
-    if (!plan) {
-      return;
-    }
-
-    const resourceKeys = plan.resources.map((resource) => treeResourceKey(planId, resource.id));
-    setSelectedPlanIds((current) => {
-      if (current.includes(planId)) {
-        setSelectedResourceKeys((keys) => keys.filter((key) => !resourceKeys.includes(key)));
-        return current.filter((id) => id !== planId);
+  const togglePlanSelect = useCallback(
+    (planId: string) => {
+      const plan = plans.find((item) => item.id === planId);
+      if (!plan) {
+        return;
       }
-      setSelectedResourceKeys((keys) => Array.from(new Set([...keys, ...resourceKeys])));
-      return [...current, planId];
-    });
-  }, [plans]);
+
+      const resourceKeys = plan.resources.map((resource) => treeResourceKey(planId, resource.id));
+      setSelectedPlanIds((current) => {
+        if (current.includes(planId)) {
+          setSelectedResourceKeys((keys) => keys.filter((key) => !resourceKeys.includes(key)));
+          return current.filter((id) => id !== planId);
+        }
+        setSelectedResourceKeys((keys) => Array.from(new Set([...keys, ...resourceKeys])));
+        return [...current, planId];
+      });
+    },
+    [plans],
+  );
 
   const toggleResourceSelect = useCallback(
     (planId: string, resourceId: string) => {
@@ -194,232 +210,114 @@ export function useLearningManager() {
     setSelectedResourceKeys(visibleResourceEntries.map((entry) => entry.key));
   }, [allVisibleSelected, clearSelection, visiblePlans, visibleResourceEntries]);
 
-  const completePlan = useCallback((planId: string) => {
-    setPlans((current) =>
-      current.map((plan) =>
-        plan.id === planId
-          ? updatePlanProgress({
-              ...plan,
-              status: 'done',
-              progress: 100,
-              resources: plan.resources.map((resource) => ({
-                ...resource,
-                done: true,
-                progress: 100,
-              })),
-            })
-          : plan,
-      ),
-    );
-    setSelectedPlanIds((current) => current.filter((id) => id !== planId));
-    setSelectedResourceKeys((current) =>
-      current.filter((key) => !key.startsWith(`${planId}::`)),
-    );
-  }, []);
+  const completePlan = useCallback(
+    (planId: string) => {
+      appData.completeCollection(planId);
+      setSelectedPlanIds((current) => current.filter((id) => id !== planId));
+      setSelectedResourceKeys((current) => current.filter((key) => !key.startsWith(`${planId}::`)));
+    },
+    [appData],
+  );
 
-  const restartPlan = useCallback((planId: string) => {
-    setPlans((current) =>
-      current.map((plan) =>
-        plan.id === planId
-          ? updatePlanProgress({
-              ...plan,
-              status: 'learning',
-              progress: 0,
-              meta: '新一轮学习 · 从第 1 个内容开始',
-              resources: plan.resources.map((resource) => ({
-                ...resource,
-                done: false,
-                progress: 0,
-              })),
-            })
-          : plan,
-      ),
-    );
-    setStatusFilter('learning');
-  }, []);
+  const restartPlan = useCallback(
+    (planId: string) => {
+      appData.restartCollection(planId);
+      setStatusFilter('learning');
+    },
+    [appData],
+  );
 
-  const removePlan = useCallback((planId: string) => {
-    setPlans((current) => current.filter((plan) => plan.id !== planId));
-    setSelectedPlanIds((current) => current.filter((id) => id !== planId));
-    setSelectedResourceKeys((current) => current.filter((key) => !key.startsWith(`${planId}::`)));
-  }, []);
+  const removePlan = useCallback(
+    (planId: string) => {
+      appData.removeCollection(planId);
+      setSelectedPlanIds((current) => current.filter((id) => id !== planId));
+      setSelectedResourceKeys((current) => current.filter((key) => !key.startsWith(`${planId}::`)));
+    },
+    [appData],
+  );
 
-  const completeResource = useCallback((planId: string, resourceId: string) => {
-    setPlans((current) =>
-      current.map((plan) => {
-        if (plan.id !== planId) {
-          return plan;
-        }
-        const nextPlan = {
-          ...plan,
-          resources: plan.resources.map((resource) =>
-            resource.id === resourceId
-              ? { ...resource, done: true, progress: 100 }
-              : resource,
-          ),
-        };
-        return updatePlanProgress(nextPlan);
-      }),
-    );
-    setSelectedResourceKeys((current) =>
-      current.filter((key) => key !== treeResourceKey(planId, resourceId)),
-    );
-  }, []);
+  const completeResource = useCallback(
+    (planId: string, resourceId: string) => {
+      appData.completeMembership(planId, resourceId);
+      setSelectedResourceKeys((current) =>
+        current.filter((key) => key !== treeResourceKey(planId, resourceId)),
+      );
+    },
+    [appData],
+  );
 
-  const restartResource = useCallback((planId: string, resourceId: string) => {
-    setPlans((current) =>
-      current.map((plan) => {
-        if (plan.id !== planId) {
-          return plan;
-        }
-        const nextPlan = {
-          ...plan,
-          resources: plan.resources.map((resource) =>
-            resource.id === resourceId ? { ...resource, done: false, progress: 0 } : resource,
-          ),
-        };
-        return updatePlanProgress(nextPlan);
-      }),
-    );
-    setStatusFilter('learning');
-    setSelectedResourceKeys((current) =>
-      current.filter((key) => key !== treeResourceKey(planId, resourceId)),
-    );
-  }, []);
+  const restartResource = useCallback(
+    (planId: string, resourceId: string) => {
+      appData.restartMembership(planId, resourceId);
+      setStatusFilter('learning');
+      setSelectedResourceKeys((current) =>
+        current.filter((key) => key !== treeResourceKey(planId, resourceId)),
+      );
+    },
+    [appData],
+  );
 
-  const removeResource = useCallback((planId: string, resourceId: string) => {
-    setPlans((current) =>
-      current
-        .map((plan) => {
-          if (plan.id !== planId) {
-            return plan;
-          }
-          const nextPlan = {
-            ...plan,
-            resources: plan.resources.filter((resource) => resource.id !== resourceId),
-          };
-          return updatePlanProgress(nextPlan);
-        })
-        .filter((plan) => plan.resources.length > 0),
-    );
-    setSelectedResourceKeys((current) =>
-      current.filter((key) => key !== treeResourceKey(planId, resourceId)),
-    );
-  }, []);
+  const removeResource = useCallback(
+    (planId: string, resourceId: string) => {
+      appData.removeMembership(planId, resourceId);
+      setSelectedResourceKeys((current) =>
+        current.filter((key) => key !== treeResourceKey(planId, resourceId)),
+      );
+    },
+    [appData],
+  );
 
   const bulkComplete = useCallback(() => {
     if (selectedPlanIds.length === 0 && selectedResourceKeys.length === 0) {
       return { ok: false as const, message: '请先选择合集或资源' };
     }
 
-    setPlans((current) => {
-      const touchedPlanIds = new Set<string>(selectedPlanIds);
-      selectedResourceKeys.forEach((key) => {
-        touchedPlanIds.add(key.split('::')[0]);
-      });
-
-      return current.map((plan) => {
-        if (selectedPlanIds.includes(plan.id)) {
-          return updatePlanProgress({
-            ...plan,
-            status: 'done',
-            progress: 100,
-            resources: plan.resources.map((resource) => ({
-              ...resource,
-              done: true,
-              progress: 100,
-            })),
-          });
-        }
-
-        if (!touchedPlanIds.has(plan.id)) {
-          return plan;
-        }
-
-        const nextPlan = {
-          ...plan,
-          resources: plan.resources.map((resource) =>
-            selectedResourceKeys.includes(treeResourceKey(plan.id, resource.id))
-              ? { ...resource, done: true, progress: 100 }
-              : resource,
-          ),
-        };
-        return updatePlanProgress(nextPlan);
-      });
+    selectedPlanIds.forEach((planId) => appData.completeCollection(planId));
+    selectedResourceKeys.forEach((key) => {
+      const [planId, resourceId] = key.split('::');
+      if (!selectedPlanIds.includes(planId)) {
+        appData.completeMembership(planId, resourceId);
+      }
     });
 
     exitSelectMode();
     return { ok: true as const, message: '已完成所选内容' };
-  }, [exitSelectMode, selectedPlanIds, selectedResourceKeys]);
+  }, [appData, exitSelectMode, selectedPlanIds, selectedResourceKeys]);
 
   const bulkRemove = useCallback(() => {
     if (selectedPlanIds.length === 0 && selectedResourceKeys.length === 0) {
       return { ok: false as const, message: '请先选择合集或资源' };
     }
 
-    setPlans((current) => {
-      const next = current
-        .filter((plan) => !selectedPlanIds.includes(plan.id))
-        .map((plan) => {
-          const nextResources = plan.resources.filter(
-            (resource) => !selectedResourceKeys.includes(treeResourceKey(plan.id, resource.id)),
-          );
-          return updatePlanProgress({ ...plan, resources: nextResources });
-        })
-        .filter((plan) => plan.resources.length > 0);
-      return next;
+    selectedPlanIds.forEach((planId) => appData.removeCollection(planId));
+    selectedResourceKeys.forEach((key) => {
+      const [planId, resourceId] = key.split('::');
+      if (!selectedPlanIds.includes(planId)) {
+        appData.removeMembership(planId, resourceId);
+      }
     });
 
     exitSelectMode();
     return { ok: true as const, message: '已移除所选内容' };
-  }, [exitSelectMode, selectedPlanIds, selectedResourceKeys]);
+  }, [appData, exitSelectMode, selectedPlanIds, selectedResourceKeys]);
 
   const bulkRestart = useCallback(() => {
     if (selectedPlanIds.length === 0 && selectedResourceKeys.length === 0) {
       return { ok: false as const, message: '请先选择合集或资源' };
     }
 
-    setPlans((current) => {
-      const touchedPlanIds = new Set<string>(selectedPlanIds);
-      selectedResourceKeys.forEach((key) => {
-        touchedPlanIds.add(key.split('::')[0]);
-      });
-
-      return current.map((plan) => {
-        if (selectedPlanIds.includes(plan.id)) {
-          return updatePlanProgress({
-            ...plan,
-            status: 'learning',
-            progress: 0,
-            meta: '新一轮学习 · 从第 1 个内容开始',
-            resources: plan.resources.map((resource) => ({
-              ...resource,
-              done: false,
-              progress: 0,
-            })),
-          });
-        }
-
-        if (!touchedPlanIds.has(plan.id)) {
-          return plan;
-        }
-
-        const nextPlan = {
-          ...plan,
-          resources: plan.resources.map((resource) =>
-            selectedResourceKeys.includes(treeResourceKey(plan.id, resource.id))
-              ? { ...resource, done: false, progress: 0 }
-              : resource,
-          ),
-        };
-        return updatePlanProgress(nextPlan);
-      });
+    selectedPlanIds.forEach((planId) => appData.restartCollection(planId));
+    selectedResourceKeys.forEach((key) => {
+      const [planId, resourceId] = key.split('::');
+      if (!selectedPlanIds.includes(planId)) {
+        appData.restartMembership(planId, resourceId);
+      }
     });
 
     setStatusFilter('learning');
     exitSelectMode();
     return { ok: true as const, message: '已重新学习所选内容' };
-  }, [exitSelectMode, selectedPlanIds, selectedResourceKeys]);
+  }, [appData, exitSelectMode, selectedPlanIds, selectedResourceKeys]);
 
   return {
     plans,
@@ -435,6 +333,7 @@ export function useLearningManager() {
     visibleTreeResources: (plan: StudyPlan) => visibleTreeResources(plan, query, resourceSortOrder),
     isPlanExpanded,
     togglePlanExpanded,
+    expandCollection,
     isPlanSelected,
     isPlanPartial,
     isResourceSelected,

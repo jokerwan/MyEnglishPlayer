@@ -28,6 +28,8 @@ type ResourceTreeFolderRowProps = {
   onResourcePress: (resourceId: string) => void;
   onResourceSelect: (resourceId: string) => void;
   onResourceToggleStudy: (resourceId: string) => void;
+  getResourceCollectionCount: (resourceId: string) => number;
+  highlightedResourceId?: string | null;
 };
 
 export function ResourceTreeFolderRow({
@@ -47,8 +49,10 @@ export function ResourceTreeFolderRow({
   onResourcePress,
   onResourceSelect,
   onResourceToggleStudy,
+  getResourceCollectionCount,
+  highlightedResourceId,
 }: ResourceTreeFolderRowProps) {
-  const joinedCount = folder.resourceCount - folder.noneCount;
+  const joinedCount = folder.learningCount;
   const studyLabel = getFolderStudyActionLabel(joinedCount, folder.resourceCount);
   const studyVariant = joinedCount > 0 ? 'cancel' : 'join';
   const meta = searchQuery.trim()
@@ -152,6 +156,8 @@ export function ResourceTreeFolderRow({
                 onPress={() => onResourcePress(resource.id)}
                 onSelect={() => onResourceSelect(resource.id)}
                 onToggleStudy={() => onResourceToggleStudy(resource.id)}
+                collectionCount={getResourceCollectionCount(resource.id)}
+                highlighted={highlightedResourceId === resource.id}
               />
             ))
           ) : (

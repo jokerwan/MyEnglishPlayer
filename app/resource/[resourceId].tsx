@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/common/AppText';
 import { DetailToolbar } from '@/components/resource-detail/DetailToolbar';
+import { CollectionPickerSheet } from '@/components/study/CollectionPickerSheet';
 import { IntensiveListenOverlay } from '@/components/resource-detail/IntensiveListenOverlay';
 import { ResourceDetailNavBar } from '@/components/resource-detail/ResourceDetailNavBar';
 import { ResourceInfoSheet } from '@/components/resource-detail/ResourceInfoSheet';
@@ -155,6 +156,12 @@ export default function ResourceDetailScreen() {
         onChangeNote={detailState.updateNote}
         onPrimaryPress={handlePrimaryAction}
         onClose={detailState.closeInfoSheet}
+      />
+
+      <CollectionPickerSheet
+        request={detailState.pickerRequest}
+        onClose={detailState.closeCollectionPicker}
+        onCompleted={(message) => showToast(message)}
       />
     </View>
   );

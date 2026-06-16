@@ -9,6 +9,7 @@ import { ResourceSearchBar } from '@/components/resources/ResourceSearchBar';
 import { ResourceTreeBatchBar } from '@/components/resources/ResourceTreeBatchBar';
 import { ResourceTreeFolderRow } from '@/components/resources/ResourceTreeFolderRow';
 import { ResourceTreeTools } from '@/components/resources/ResourceTreeTools';
+import { CollectionPickerSheet } from '@/components/study/CollectionPickerSheet';
 import { colors } from '@/constants/colors';
 import { useToast } from '@/hooks/useAppContext';
 import { useResourcesLibrary } from '@/hooks/useResourcesLibrary';
@@ -25,13 +26,18 @@ export default function ResourcesScreen() {
   };
 
   const handleBulkAdd = () => {
-    const result = library.bulkAddToStudy();
+    const result = library.requestBulkAddStudy();
     showToast(result.message);
   };
 
   const handleBulkRemove = () => {
-    const result = library.bulkRemoveFromStudy();
+    const result = library.requestBulkRemoveStudy();
     showToast(result.message);
+  };
+
+  const handlePickerCompleted = (message: string) => {
+    showToast(message);
+    library.exitSelectMode();
   };
 
   const hasVisibleEntries = library.visibleTreeEntries.length > 0;
@@ -94,8 +100,10 @@ export default function ResourcesScreen() {
                   onLongPress={library.enterSelectMode}
                   onSelect={() => library.toggleFolderSelect(entry.folder.name, visibleResourceIds)}
                   onToggleStudy={() => {
-                    const result = library.toggleFolderStudy(entry.folder.name);
-                    showToast(result.message);
+                    library.requestFolderStudy(
+                      entry.folder.name,
+                      entry.visibleResources.map((resource) => resource.id),
+                    );
                   }}
                   onResourceLongPress={() => library.enterSelectMode()}
                   onResourcePress={(resourceId) => router.push(`/resource/${resourceId}`)}
@@ -103,9 +111,10 @@ export default function ResourcesScreen() {
                     library.toggleResourceSelect(entry.folder.name, resourceId, visibleResourceIds)
                   }
                   onResourceToggleStudy={(resourceId) => {
-                    const result = library.toggleResourceStudy(resourceId);
-                    showToast(result.message);
+                    library.requestResourceStudy(resourceId, entry.folder.name);
                   }}
+                  getResourceCollectionCount={library.getResourceCollectionCount}
+                  highlightedResourceId={library.highlightResourceId}
                 />
               );
             })}
@@ -116,6 +125,12 @@ export default function ResourcesScreen() {
 
         <View style={styles.safeBottom} />
       </ScrollView>
+
+      <CollectionPickerSheet
+        request={library.pickerRequest}
+        onClose={library.closeCollectionPicker}
+        onCompleted={handlePickerCompleted}
+      />
     </View>
   );
 }

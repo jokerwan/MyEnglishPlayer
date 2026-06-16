@@ -95,13 +95,25 @@ export function getFolderStudyActionLabel(joinedCount: number, resourceCount: nu
   if (resourceCount === 0) {
     return null;
   }
-  return joinedCount > 0 ? '取消学习' : '加入学习';
+  if (joinedCount <= 0) {
+    return '加入学习';
+  }
+  if (joinedCount >= resourceCount) {
+    return '取消学习';
+  }
+  return '加入学习';
 }
 
-export function getResourceStudyActionLabel(studyStatus: ResourceLibraryItem['studyStatus']) {
-  return studyStatus === 'none' ? '加入学习' : '取消学习';
+export function getResourceStudyActionLabel(collectionCount: number) {
+  if (collectionCount <= 0) {
+    return '加入学习';
+  }
+  if (collectionCount === 1) {
+    return '取消学习';
+  }
+  return `已加入 ${collectionCount}`;
 }
 
-export function isResourceInStudy(studyStatus: ResourceLibraryItem['studyStatus']) {
-  return studyStatus !== 'none';
+export function getResourceStudyActionVariant(collectionCount: number): 'join' | 'cancel' {
+  return collectionCount > 0 ? 'cancel' : 'join';
 }

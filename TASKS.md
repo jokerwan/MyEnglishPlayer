@@ -98,7 +98,8 @@
 - [x] `UploadBottomAction`
 - [x] `StackNavBar`
 - [x] 本地校验：音视频必选、名称必填
-- [x] 上传成功态与跳转「我的资源」
+- [x] 上传成功态：加入学习 / 稍后再说 / 去资源库查看
+- [x] 上传写入共享资源库
 
 ### 4.2 我的资源 `page-resources`
 
@@ -110,19 +111,18 @@
 - [x] `ResourceEmptyState`
 - [x] 树状列表：文件夹展开/收起、嵌套资源、搜索自动展开
 - [x] 单独/批量加入学习与取消学习（长按进入批量模式）
+- [x] 统一数据层：上传写入资源库，学习合集多对多关联
+- [x] `CollectionPickerSheet`：默认学习 / 同名文件夹一键建合集
 
 ### 4.3 我的学习 `page-learning`
 
 - [x] 路由：`/learning`
 - [x] `LearningStatusSegment`
-- [x] `LearningToolbar`
-- [x] `LearningPlanSwipeRow`
-- [x] `LearningPlanCard`
-- [x] dashboard 视图：`lm-dashboard`
-- [x] 详情视图：`/learning/[planId]`
-- [x] `LearningResourceCard`
-- [x] 左滑取消、选择模式、排序本地逻辑
+- [x] `LearningTreePlanRow` / `LearningTreeResourceRow`
+- [x] `LearningBatchBar`
 - [x] 树状列表：合集展开/收起、嵌套资源、搜索、长按批量操作
+- [x] 与学习合集统一数据层（资源可多合集）
+- [x] 废弃 `/learning/[planId]`，首页跳转 `?expand=` 展开合集
 
 ### 4.4 资源详情 / 精听页 `page-resource-detail`
 

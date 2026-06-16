@@ -1,20 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import {
-  DEFAULT_RESOURCE_FOLDER_NAME,
-  mockResourceFolders,
-  mockResourceItems,
-} from '@/data/mockResources';
-import type { ResourceLibraryFolder, ResourceLibraryItem } from '@/types/resource';
-import { buildFolderViewModel } from '@/utils/resourceLibrary';
-import {
-  buildVisibleTreeFolders,
-  normalizedResourceSearch,
-} from '@/utils/resourceTree';
+import { useAppData } from '@/hooks/useAppData';
+import type { ResourceLibraryFolder } from '@/types/resource';
+import { buildFolderViewModelWithMemberships } from '@/utils/libraryView';
+import { buildVisibleTreeFolders, normalizedResourceSearch } from '@/utils/resourceTree';
 
 export function useResourcesLibrary() {
-  const [resources, setResources] = useState<ResourceLibraryItem[]>(mockResourceItems);
-  const [folders, setFolders] = useState<ResourceLibraryFolder[]>(mockResourceFolders);
+  const appData = useAppData();
   const [searchQuery, setSearchQuery] = useState('');
   const [showNewFolderForm, setShowNewFolderForm] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
@@ -27,13 +19,16 @@ export function useResourcesLibrary() {
   const query = normalizedResourceSearch(searchQuery);
 
   const folderViewModels = useMemo(
-    () => folders.map((folder) => buildFolderViewModel(folder, resources)),
-    [folders, resources],
+    () =>
+      appData.folders.map((folder) =>
+        buildFolderViewModelWithMemberships(folder, appData.resources, appData.memberships),
+      ),
+    [appData.folders, appData.memberships, appData.resources],
   );
 
   const visibleTreeEntries = useMemo(
-    () => buildVisibleTreeFolders(folderViewModels, resources, query),
-    [folderViewModels, query, resources],
+    () => buildVisibleTreeFolders(folderViewModels, appData.resources, query),
+    [appData.resources, folderViewModels, query],
   );
 
   useEffect(() => {
@@ -62,6 +57,16 @@ export function useResourcesLibrary() {
       current.filter((name) => !matchedFolderNames.includes(name)),
     );
   }, [query, visibleTreeEntries]);
+
+  useEffect(() => {
+    if (!appData.highlightResourceId) {
+      return;
+    }
+    const resource = appData.resources.find((item) => item.id === appData.highlightResourceId);
+    if (resource) {
+      setCollapsedFolderNames((current) => current.filter((name) => name !== resource.folder));
+    }
+  }, [appData.highlightResourceId, appData.resources]);
 
   const visibleResourceEntries = useMemo(
     () =>
@@ -195,130 +200,103 @@ export function useResourcesLibrary() {
   }, []);
 
   const addFolder = useCallback(() => {
-    const folderName = newFolderName.trim() || '新建文件夹';
-    const exists = folders.some((folder) => folder.name === folderName);
-    if (exists) {
-      return { ok: false as const, message: '文件夹已存在' };
-    }
+    return appData.addFolder(newFolderName);
+  }, [appData, newFolderName]);
 
-    const newFolder: ResourceLibraryFolder = {
-      id: `folder-${Date.now()}`,
-      name: folderName,
-      icon: 'folder-o',
-      gradient: ['#14b8a6', '#99f6e4'],
-      isUserCreated: true,
-    };
-
-    setFolders((current) => [...current, newFolder]);
-    setNewFolderName('');
-    setShowNewFolderForm(false);
-    setCollapsedFolderNames((current) => current.filter((name) => name !== folderName));
-
-    return { ok: true as const, message: `已新建文件夹：${folderName}`, folderName };
-  }, [folders, newFolderName]);
-
-  const toggleFolderStudy = useCallback(
-    (folderName: string) => {
-      const folderResources = resources.filter((item) => item.folder === folderName);
-      if (!folderResources.length) {
-        return { ok: false as const, message: '该文件夹暂无资源' };
-      }
-
-      const joinedItems = folderResources.filter((item) => item.studyStatus !== 'none');
-      const shouldCancel = joinedItems.length > 0;
-
-      setResources((current) =>
-        current.map((item) => {
-          if (item.folder !== folderName) {
-            return item;
-          }
-          if (shouldCancel) {
-            return { ...item, studyStatus: 'none' };
-          }
-          return item.studyStatus === 'none' ? { ...item, studyStatus: 'learning' } : item;
-        }),
-      );
-
-      return {
-        ok: true as const,
-        message: shouldCancel ? `已取消学习：${folderName}` : `已加入学习：${folderName}`,
-      };
+  const openAddStudyPicker = useCallback(
+    (resourceIds: string[], folderNames: string[]) => {
+      appData.openCollectionPicker({
+        mode: 'add',
+        resourceIds,
+        folderNames,
+      });
     },
-    [resources],
+    [appData],
   );
 
-  const toggleResourceStudy = useCallback(
-    (resourceId: string) => {
-      const resource = resources.find((item) => item.id === resourceId);
-      if (!resource) {
-        return { ok: false as const, message: '资源不存在' };
-      }
-
-      const shouldCancel = resource.studyStatus !== 'none';
-      const cleanTitle = resource.title.replace(/\.(mp4|mp3|wav|m4a)$/i, '');
-
-      setResources((current) =>
-        current.map((item) => {
-          if (item.id !== resourceId) {
-            return item;
-          }
-          return {
-            ...item,
-            studyStatus: shouldCancel ? 'none' : 'learning',
-          };
-        }),
-      );
-
-      return {
-        ok: true as const,
-        message: shouldCancel ? `已取消学习：${cleanTitle}` : `已加入学习：${cleanTitle}`,
-      };
+  const openRemoveStudyPicker = useCallback(
+    (resourceIds: string[]) => {
+      appData.openCollectionPicker({
+        mode: 'remove',
+        resourceIds,
+        folderNames: [],
+      });
     },
-    [resources],
+    [appData],
   );
 
-  const bulkAddToStudy = useCallback(() => {
+  const requestFolderStudy = useCallback(
+    (folderName: string, resourceIds: string[]) => {
+      const joinedCount = resourceIds.filter((id) => appData.isResourceInAnyCollection(id)).length;
+      if (joinedCount > 0 && joinedCount >= resourceIds.length) {
+        openRemoveStudyPicker(resourceIds);
+        return;
+      }
+      openAddStudyPicker(resourceIds, [folderName]);
+    },
+    [appData, openAddStudyPicker, openRemoveStudyPicker],
+  );
+
+  const requestResourceStudy = useCallback(
+    (resourceId: string, folderName: string) => {
+      if (appData.isResourceInAnyCollection(resourceId)) {
+        openRemoveStudyPicker([resourceId]);
+        return;
+      }
+      openAddStudyPicker([resourceId], [folderName]);
+    },
+    [appData, openAddStudyPicker, openRemoveStudyPicker],
+  );
+
+  const requestBulkAddStudy = useCallback(() => {
     if (selectedFolderNames.length === 0 && selectedResourceIds.length === 0) {
       return { ok: false as const, message: '请先选择文件夹或资源' };
     }
-
-    setResources((current) =>
-      current.map((item) => {
-        const selectedByFolder = selectedFolderNames.includes(item.folder);
-        const selectedById = selectedResourceIds.includes(item.id);
-        if (!selectedByFolder && !selectedById) {
-          return item;
-        }
-        return item.studyStatus === 'none' ? { ...item, studyStatus: 'learning' } : item;
-      }),
+    const resourceIds = Array.from(
+      new Set([
+        ...selectedResourceIds,
+        ...appData.resources
+          .filter((resource) => selectedFolderNames.includes(resource.folder))
+          .map((resource) => resource.id),
+      ]),
     );
+    const folderNames = Array.from(
+      new Set(
+        resourceIds
+          .map((id) => appData.resources.find((resource) => resource.id === id)?.folder)
+          .filter((name): name is string => Boolean(name)),
+      ),
+    );
+    openAddStudyPicker(resourceIds, folderNames);
+    return { ok: true as const, message: '请选择要加入的学习合集' };
+  }, [appData.resources, openAddStudyPicker, selectedFolderNames, selectedResourceIds]);
 
-    exitSelectMode();
-    return { ok: true as const, message: '已加入所选内容到学习' };
-  }, [exitSelectMode, selectedFolderNames, selectedResourceIds]);
-
-  const bulkRemoveFromStudy = useCallback(() => {
+  const requestBulkRemoveStudy = useCallback(() => {
     if (selectedFolderNames.length === 0 && selectedResourceIds.length === 0) {
       return { ok: false as const, message: '请先选择文件夹或资源' };
     }
-
-    setResources((current) =>
-      current.map((item) => {
-        const selectedByFolder = selectedFolderNames.includes(item.folder);
-        const selectedById = selectedResourceIds.includes(item.id);
-        if (!selectedByFolder && !selectedById) {
-          return item;
-        }
-        return item.studyStatus !== 'none' ? { ...item, studyStatus: 'none' } : item;
-      }),
+    const resourceIds = Array.from(
+      new Set([
+        ...selectedResourceIds,
+        ...appData.resources
+          .filter((resource) => selectedFolderNames.includes(resource.folder))
+          .map((resource) => resource.id),
+      ]),
     );
+    openRemoveStudyPicker(resourceIds);
+    return { ok: true as const, message: '请选择要从哪个合集移除' };
+  }, [appData.resources, openRemoveStudyPicker, selectedFolderNames, selectedResourceIds]);
 
-    exitSelectMode();
-    return { ok: true as const, message: '已取消所选内容的学习' };
-  }, [exitSelectMode, selectedFolderNames, selectedResourceIds]);
+  const getResourceCollectionCount = useCallback(
+    (resourceId: string) => appData.getResourceCollectionCount(resourceId),
+    [appData],
+  );
+
+  const clearHighlight = useCallback(() => {
+    appData.setHighlightResourceId(null);
+  }, [appData]);
 
   return {
-    folders: folderViewModels,
     searchQuery,
     setSearchQuery,
     showNewFolderForm,
@@ -339,10 +317,14 @@ export function useResourcesLibrary() {
     toggleResourceSelect,
     allVisibleSelected,
     selectAllVisible,
-    toggleFolderStudy,
-    toggleResourceStudy,
-    bulkAddToStudy,
-    bulkRemoveFromStudy,
-    defaultFolderName: DEFAULT_RESOURCE_FOLDER_NAME,
+    requestFolderStudy,
+    requestResourceStudy,
+    requestBulkAddStudy,
+    requestBulkRemoveStudy,
+    getResourceCollectionCount,
+    highlightResourceId: appData.highlightResourceId,
+    clearHighlight,
+    pickerRequest: appData.pickerRequest,
+    closeCollectionPicker: appData.closeCollectionPicker,
   };
 }

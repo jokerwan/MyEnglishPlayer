@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { getResourceDetailById } from '@/data/mockResourceDetails';
+import { getResourceDetailById, registerResourceDetail } from '@/data/mockResourceDetails';
+import { useAppData } from '@/hooks/useAppData';
 import type { ResourceInfoTab, ResourceDetail } from '@/types/resourceDetail';
+import { buildResourceDetailFromLibraryItem } from '@/utils/resourceDetail';
 import {
   DETAIL_SPEEDS,
   formatClockTime,
@@ -12,7 +14,27 @@ import {
 } from '@/utils/resourceDetail';
 
 export function useResourceDetail(resourceId: string) {
-  const initialDetail = useMemo(() => getResourceDetailById(resourceId), [resourceId]);
+  const appData = useAppData();
+  const resource = appData.resources.find((item) => item.id === resourceId);
+
+  const initialDetail = useMemo(() => {
+    const cached = getResourceDetailById(resourceId);
+    if (cached) {
+      return {
+        ...cached,
+        studyStatus: appData.getResourceStudyStatus(resourceId),
+        progress: appData.getResourceProgress(resourceId),
+      };
+    }
+    if (!resource) {
+      return null;
+    }
+    return buildResourceDetailFromLibraryItem(resource, {
+      studyStatus: appData.getResourceStudyStatus(resourceId),
+      progress: appData.getResourceProgress(resourceId),
+    });
+  }, [appData, resource, resourceId]);
+
   const [detail, setDetail] = useState<ResourceDetail | null>(initialDetail);
   const [activeSentenceIndex, setActiveSentenceIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -118,51 +140,63 @@ export function useResourceDetail(resourceId: string) {
     setIntensiveVisible(false);
   }, []);
 
+  const openAddToStudyPicker = useCallback(() => {
+    if (!resource) {
+      return;
+    }
+    appData.openCollectionPicker({
+      mode: 'add',
+      resourceIds: [resourceId],
+      folderNames: [resource.folder],
+    });
+  }, [appData, resource, resourceId]);
+
   const handlePrimaryAction = useCallback(() => {
-    if (!detail) {
+    if (!detail || !resource) {
       return { ok: false as const, message: '资源不存在' };
     }
 
     if (detail.studyStatus === 'none') {
-      setDetail((current) =>
-        current
-          ? {
-              ...current,
-              studyStatus: 'learning',
-              progress: 15,
-              stats: { ...current.stats, listenCount: 1 },
-            }
-          : current,
-      );
-      return { ok: true as const, message: `已加入学习：${detail.title.replace(/\.(mp4|mp3)$/i, '')}` };
+      openAddToStudyPicker();
+      return { ok: true as const, message: '请选择要加入的学习合集' };
+    }
+
+    const memberships = appData.memberships.filter((item) => item.resourceId === resourceId);
+    const targetMembership = memberships[0];
+    if (!targetMembership) {
+      return { ok: false as const, message: '未找到学习记录' };
     }
 
     if (detail.studyStatus === 'learning') {
-      setDetail((current) =>
-        current
-          ? {
-              ...current,
-              studyStatus: 'done',
-              progress: 100,
-              stats: { ...current.stats, listenCount: current.stats.listenCount + 1 },
-            }
-          : current,
-      );
-      return { ok: true as const, message: `已完成学习：${detail.title.replace(/\.(mp4|mp3)$/i, '')}` };
+      appData.completeMembership(targetMembership.collectionId, resourceId);
+      const nextDetail = {
+        ...detail,
+        studyStatus: 'done' as const,
+        progress: 100,
+        stats: { ...detail.stats, listenCount: detail.stats.listenCount + 1 },
+      };
+      setDetail(nextDetail);
+      registerResourceDetail(nextDetail);
+      return {
+        ok: true as const,
+        message: `已完成学习：${detail.title.replace(/\.(mp4|mp3)$/i, '')}`,
+      };
     }
 
-    setDetail((current) =>
-      current
-        ? {
-            ...current,
-            studyStatus: 'learning',
-            progress: 0,
-            stats: { ...current.stats, listenCount: current.stats.listenCount + 1 },
-          }
-        : current,
-    );
-    return { ok: true as const, message: `已重新开始学习：${detail.title.replace(/\.(mp4|mp3)$/i, '')}` };
-  }, [detail]);
+    appData.restartMembership(targetMembership.collectionId, resourceId);
+    const nextDetail = {
+      ...detail,
+      studyStatus: 'learning' as const,
+      progress: 0,
+      stats: { ...detail.stats, listenCount: detail.stats.listenCount + 1 },
+    };
+    setDetail(nextDetail);
+    registerResourceDetail(nextDetail);
+    return {
+      ok: true as const,
+      message: `已重新开始学习：${detail.title.replace(/\.(mp4|mp3)$/i, '')}`,
+    };
+  }, [appData, detail, openAddToStudyPicker, resource, resourceId]);
 
   const updateNote = useCallback((value: string) => {
     setNote(value);
@@ -184,10 +218,11 @@ export function useResourceDetail(resourceId: string) {
     activeSentenceIndex,
     activeSentence,
     isPlaying,
+    speedIndex,
     currentSpeed,
     speedLabel: formatSpeedLabel(currentSpeed),
     currentTimeLabel: formatClockTime(currentTimeSeconds),
-    totalTimeLabel: detail?.duration ?? '00:00',
+    totalTimeLabel: formatClockTime(detail?.durationSeconds ?? 0),
     progressPercent,
     infoVisible,
     infoTab,
@@ -201,10 +236,12 @@ export function useResourceDetail(resourceId: string) {
     cycleSpeed,
     openInfoSheet,
     closeInfoSheet,
-    setInfoTab,
     openIntensive,
     closeIntensive,
     handlePrimaryAction,
     updateNote,
+    setInfoTab,
+    pickerRequest: appData.pickerRequest,
+    closeCollectionPicker: appData.closeCollectionPicker,
   };
 }

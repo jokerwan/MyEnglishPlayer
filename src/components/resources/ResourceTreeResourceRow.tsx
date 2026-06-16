@@ -9,6 +9,7 @@ import type { ResourceLibraryItem } from '@/types/resource';
 import {
   getResourceMeta,
   getResourceStudyActionLabel,
+  getResourceStudyActionVariant,
   stripResourceFileExtension,
 } from '@/utils/resourceTree';
 
@@ -24,6 +25,8 @@ type ResourceTreeResourceRowProps = {
   onPress: () => void;
   onSelect: () => void;
   onToggleStudy: () => void;
+  collectionCount: number;
+  highlighted?: boolean;
 };
 
 export function ResourceTreeResourceRow({
@@ -36,11 +39,13 @@ export function ResourceTreeResourceRow({
   onPress,
   onSelect,
   onToggleStudy,
+  collectionCount,
+  highlighted = false,
 }: ResourceTreeResourceRowProps) {
   const title = stripResourceFileExtension(resource.title);
   const meta = getResourceMeta(resource);
-  const studyLabel = getResourceStudyActionLabel(resource.studyStatus);
-  const studyVariant = resource.studyStatus === 'none' ? 'join' : 'cancel';
+  const studyLabel = getResourceStudyActionLabel(collectionCount);
+  const studyVariant = getResourceStudyActionVariant(collectionCount);
   const longPress = useLongPress(onLongPress);
 
   const handlePress = () => {
@@ -61,6 +66,7 @@ export function ResourceTreeResourceRow({
         selected && styles.rowSelected,
         selectMode && styles.rowSelectMode,
         isLast && styles.rowLast,
+        highlighted && styles.rowHighlighted,
       ]}
       onPress={handlePress}
       onPressIn={longPress.onPressIn}
@@ -81,7 +87,7 @@ export function ResourceTreeResourceRow({
         colors={folderGradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={[styles.cover, resource.studyStatus === 'done' && styles.coverDone]}
+        style={[styles.cover, collectionCount > 0 && styles.coverJoined]}
       >
         <FontAwesome
           name={resource.type === 'video' ? 'video-camera' : 'headphones'}
@@ -91,7 +97,7 @@ export function ResourceTreeResourceRow({
       </LinearGradient>
 
       <View style={styles.info}>
-        <AppText style={[styles.title, resource.studyStatus === 'done' && styles.titleDone]} numberOfLines={1}>
+        <AppText style={styles.title} numberOfLines={1}>
           {title}
         </AppText>
         <AppText style={styles.meta} numberOfLines={1}>
@@ -152,6 +158,10 @@ const styles = StyleSheet.create({
   rowLast: {
     marginBottom: 2,
   },
+  rowHighlighted: {
+    backgroundColor: 'rgba(254,249,195,0.55)',
+    borderColor: 'rgba(245,158,11,0.35)',
+  },
   branch: {
     position: 'absolute',
     left: -16,
@@ -191,8 +201,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  coverDone: {
-    opacity: 0.78,
+  coverJoined: {
+    opacity: 0.88,
   },
   info: {
     flex: 1,

@@ -9,22 +9,26 @@ import type { ResourceLibraryItem } from '@/types/resource';
 type ResourceListItemProps = {
   item: ResourceLibraryItem;
   index: number;
+  collectionCount?: number;
   onPress: () => void;
   onAddToStudy: () => void;
 };
 
-function getTrackContent(item: ResourceLibraryItem, index: number) {
-  if (item.studyStatus === 'done') {
-    return { type: 'icon' as const, name: 'check' as const };
-  }
-  if (item.studyStatus === 'learning') {
+function getTrackContent(collectionCount: number, index: number) {
+  if (collectionCount > 0) {
     return { type: 'icon' as const, name: 'play' as const };
   }
   return { type: 'text' as const, value: String(index) };
 }
 
-export function ResourceListItem({ item, index, onPress, onAddToStudy }: ResourceListItemProps) {
-  const track = getTrackContent(item, index);
+export function ResourceListItem({
+  item,
+  index,
+  collectionCount = 0,
+  onPress,
+  onAddToStudy,
+}: ResourceListItemProps) {
+  const track = getTrackContent(collectionCount, index);
   const meta = `${item.duration} · ${item.level} · ${item.hasSubtitle ? '有字幕' : '无字幕'}`;
   const typeLabel = item.type === 'video' ? '视频' : '音频';
 
@@ -32,15 +36,14 @@ export function ResourceListItem({ item, index, onPress, onAddToStudy }: Resourc
     <Pressable
       style={[
         styles.item,
-        item.studyStatus === 'learning' && styles.itemLearning,
-        item.studyStatus === 'done' && styles.itemDone,
+        collectionCount > 0 && styles.itemLearning,
       ]}
       onPress={onPress}
     >
       <View
         style={[
           styles.trackIndex,
-          (item.studyStatus === 'learning' || item.studyStatus === 'done') && styles.trackIndexActive,
+          collectionCount > 0 && styles.trackIndexActive,
         ]}
       >
         {track.type === 'icon' ? (
@@ -52,7 +55,7 @@ export function ResourceListItem({ item, index, onPress, onAddToStudy }: Resourc
 
       <LinearGradient
         colors={item.type === 'video' ? ['#14b8a6', '#22c55e'] : ['#0f766e', '#2dd4bf']}
-        style={[styles.cover, item.studyStatus === 'done' && styles.coverDone]}
+        style={styles.cover}
       >
         <FontAwesome
           name={item.type === 'video' ? 'video-camera' : 'headphones'}
@@ -63,7 +66,7 @@ export function ResourceListItem({ item, index, onPress, onAddToStudy }: Resourc
 
       <View style={styles.info}>
         <View style={styles.titleRow}>
-          <AppText style={[styles.title, item.studyStatus === 'done' && styles.titleDone]} numberOfLines={1}>
+          <AppText style={styles.title} numberOfLines={1}>
             {item.title}
           </AppText>
           <View style={styles.typeBadge}>
@@ -79,7 +82,7 @@ export function ResourceListItem({ item, index, onPress, onAddToStudy }: Resourc
         </View>
       </View>
 
-      {item.studyStatus === 'none' ? (
+      {collectionCount === 0 ? (
         <Pressable
           style={styles.studyAction}
           onPress={(event) => {

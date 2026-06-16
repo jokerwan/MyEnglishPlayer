@@ -10,8 +10,8 @@ import { colors } from '@/constants/colors';
 import { layout } from '@/constants/layout';
 import { mockHomeStats } from '@/data/mockHome';
 import { mockQuickActions } from '@/data/mockQuickActions';
-import { getLearningPlans } from '@/data/mockStudyPlans';
 import { usePlayer, useToast } from '@/hooks/useAppContext';
+import { useAppData } from '@/hooks/useAppData';
 import type { StudyPlan } from '@/types/studyPlan';
 
 export default function HomeScreen() {
@@ -19,7 +19,8 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { showToast } = useToast();
   const { playPlan } = usePlayer();
-  const learningPlans = getLearningPlans();
+  const appData = useAppData();
+  const learningPlans = appData.studyPlans.filter((plan) => plan.status === 'learning');
 
   const handleQuickAction = (actionId: (typeof mockQuickActions)[number]['id']) => {
     if (actionId === 'upload') {
@@ -40,7 +41,7 @@ export default function HomeScreen() {
   };
 
   const handlePlanPress = (plan: StudyPlan) => {
-    router.push(`/learning/${plan.id}`);
+    router.push(`/learning?expand=${plan.id}`);
   };
 
   const handlePlanPlayPress = (plan: StudyPlan) => {
