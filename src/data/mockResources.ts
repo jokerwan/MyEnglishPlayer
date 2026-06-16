@@ -21,6 +21,12 @@ export const mockResourceFolders: ResourceLibraryFolder[] = [
     gradient: ['#22c55e', '#a7f3d0'],
   },
   {
+    id: 'parenting-daily',
+    name: '亲子日常',
+    icon: 'heart',
+    gradient: ['#f59e0b', '#fde68a'],
+  },
+  {
     id: 'animation',
     name: '动画磨耳朵',
     icon: 'video-camera',

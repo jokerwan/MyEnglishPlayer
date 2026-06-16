@@ -24,7 +24,7 @@ export type ResourceLibraryItem = {
 export type ResourceLibraryFolder = {
   id: string;
   name: string;
-  icon: 'folder-open-o' | 'child' | 'video-camera' | 'microphone' | 'bookmark-o' | 'newspaper-o' | 'folder-o';
+  icon: 'folder-open-o' | 'child' | 'video-camera' | 'microphone' | 'bookmark-o' | 'newspaper-o' | 'folder-o' | 'heart';
   gradient: [string, string];
   isUserCreated?: boolean;
 };

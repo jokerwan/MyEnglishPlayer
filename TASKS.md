@@ -105,13 +105,11 @@
 - [x] 路由：`/resources`
 - [x] `ResourceNavBar`
 - [x] `ResourceSearchBar`
-- [x] `ResourceFolderCard` / `ResourceFolderSection`
-- [x] `ResourceFolderStudyCard`
-- [x] `ResourceTypeFilterRow`
-- [x] `ResourceListItem`
-- [x] `ResourceListHeader`
+- [x] `ResourceTreeTools` / `ResourceTreeFolderRow` / `ResourceTreeResourceRow`
+- [x] `ResourceTreeBatchBar` / `ResourceTreeStudyButton`
 - [x] `ResourceEmptyState`
-- [x] 搜索、筛选、加入学习本地逻辑
+- [x] 树状列表：文件夹展开/收起、嵌套资源、搜索自动展开
+- [x] 单独/批量加入学习与取消学习（长按进入批量模式）
 
 ### 4.3 我的学习 `page-learning`
 

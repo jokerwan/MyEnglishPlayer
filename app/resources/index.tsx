@@ -4,13 +4,11 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ResourceEmptyState } from '@/components/resources/ResourceEmptyState';
-import { ResourceFolderSection } from '@/components/resources/ResourceFolderSection';
-import { ResourceFolderStudyCard } from '@/components/resources/ResourceFolderStudyCard';
-import { ResourceListHeader } from '@/components/resources/ResourceListHeader';
-import { ResourceListItem } from '@/components/resources/ResourceListItem';
 import { ResourceNavBar } from '@/components/resources/ResourceNavBar';
 import { ResourceSearchBar } from '@/components/resources/ResourceSearchBar';
-import { ResourceTypeFilterRow } from '@/components/resources/ResourceTypeFilterRow';
+import { ResourceTreeBatchBar } from '@/components/resources/ResourceTreeBatchBar';
+import { ResourceTreeFolderRow } from '@/components/resources/ResourceTreeFolderRow';
+import { ResourceTreeTools } from '@/components/resources/ResourceTreeTools';
 import { colors } from '@/constants/colors';
 import { useToast } from '@/hooks/useAppContext';
 import { useResourcesLibrary } from '@/hooks/useResourcesLibrary';
@@ -26,23 +24,17 @@ export default function ResourcesScreen() {
     showToast(result.message);
   };
 
-  const handleFolderStudy = () => {
-    const result = library.startSelectedFolderStudy();
+  const handleBulkAdd = () => {
+    const result = library.bulkAddToStudy();
     showToast(result.message);
   };
 
-  const handleBulkStudy = () => {
-    handleFolderStudy();
-  };
-
-  const handleResourcePress = (resourceId: string) => {
-    router.push(`/resource/${resourceId}`);
-  };
-
-  const handleAddResourceToStudy = (resourceId: string) => {
-    const result = library.addResourceToStudy(resourceId);
+  const handleBulkRemove = () => {
+    const result = library.bulkRemoveFromStudy();
     showToast(result.message);
   };
+
+  const hasVisibleEntries = library.visibleTreeEntries.length > 0;
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
@@ -66,47 +58,57 @@ export default function ResourcesScreen() {
       >
         <ResourceSearchBar value={library.searchQuery} onChangeText={library.setSearchQuery} />
 
-        <ResourceFolderSection
-          folders={library.folders}
-          selectedFolderName={library.selectedFolderName}
-          summary={`${library.selectedFolder.name} · ${library.selectedFolder.resourceCount} 个资源`}
+        <ResourceTreeTools
           showNewFolderForm={library.showNewFolderForm}
           newFolderName={library.newFolderName}
-          onSelectFolder={library.selectFolder}
           onToggleNewFolderForm={library.toggleNewFolderForm}
           onNewFolderNameChange={library.setNewFolderName}
           onAddFolder={handleAddFolder}
         />
 
-        <ResourceFolderStudyCard
-          folderName={library.selectedFolder.name}
-          action={library.folderStudyAction}
-          onPress={handleFolderStudy}
-        />
+        {library.selectMode ? (
+          <ResourceTreeBatchBar
+            allSelected={library.allVisibleSelected}
+            onSelectAll={library.selectAllVisible}
+            onAddToStudy={handleBulkAdd}
+            onRemoveFromStudy={handleBulkRemove}
+          />
+        ) : null}
 
-        <View style={styles.filterWrap}>
-          <ResourceTypeFilterRow value={library.typeFilter} onChange={library.setTypeFilter} />
-        </View>
-
-        <ResourceListHeader
-          visibleCount={library.visibleResources.length}
-          showBulkStudyButton={library.showBulkStudyButton}
-          bulkStudyLabel={library.bulkStudyLabel}
-          onBulkStudyPress={handleBulkStudy}
-          onSortPress={() => showToast('按最近上传排序')}
-        />
-
-        {library.visibleResources.length > 0 ? (
+        {hasVisibleEntries ? (
           <View style={styles.list}>
-            {library.visibleResources.map((item, index) => (
-              <ResourceListItem
-                key={item.id}
-                item={item}
-                index={index + 1}
-                onPress={() => handleResourcePress(item.id)}
-                onAddToStudy={() => handleAddResourceToStudy(item.id)}
-              />
-            ))}
+            {library.visibleTreeEntries.map((entry) => {
+              const visibleResourceIds = entry.visibleResources.map((resource) => resource.id);
+              return (
+                <ResourceTreeFolderRow
+                  key={entry.folder.id}
+                  folder={entry.folder}
+                  resources={entry.visibleResources}
+                  expanded={library.isFolderExpanded(entry.folder.name)}
+                  searchQuery={library.searchQuery}
+                  selectMode={library.selectMode}
+                  selected={library.isFolderSelected(entry.folder.name, visibleResourceIds)}
+                  partial={library.isFolderPartial(entry.folder.name, visibleResourceIds)}
+                  isResourceSelected={library.isResourceSelected}
+                  onToggleExpanded={() => library.toggleFolderExpanded(entry.folder.name)}
+                  onLongPress={library.enterSelectMode}
+                  onSelect={() => library.toggleFolderSelect(entry.folder.name, visibleResourceIds)}
+                  onToggleStudy={() => {
+                    const result = library.toggleFolderStudy(entry.folder.name);
+                    showToast(result.message);
+                  }}
+                  onResourceLongPress={() => library.enterSelectMode()}
+                  onResourcePress={(resourceId) => router.push(`/resource/${resourceId}`)}
+                  onResourceSelect={(resourceId) =>
+                    library.toggleResourceSelect(entry.folder.name, resourceId, visibleResourceIds)
+                  }
+                  onResourceToggleStudy={(resourceId) => {
+                    const result = library.toggleResourceStudy(resourceId);
+                    showToast(result.message);
+                  }}
+                />
+              );
+            })}
           </View>
         ) : (
           <ResourceEmptyState onUpload={() => router.push('/upload')} />
@@ -130,22 +132,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 14,
   },
-  filterWrap: {
-    marginTop: 16,
-  },
   list: {
-    overflow: 'hidden',
-    borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.92)',
-    borderWidth: 1,
-    borderColor: 'rgba(226,232,240,0.92)',
-    shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.038,
-    shadowRadius: 14,
-    elevation: 2,
+    gap: 12,
+    marginTop: 14,
   },
   safeBottom: {
-    height: 24,
+    height: 120,
   },
 });
