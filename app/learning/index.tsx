@@ -62,8 +62,9 @@ export default function LearningScreen() {
     }
   };
 
-  const handleBulkComplete = () => {
-    const result = manager.bulkComplete();
+  const handleBulkPrimary = () => {
+    const result =
+      manager.statusFilter === 'done' ? manager.bulkRestart() : manager.bulkComplete();
     showToast(result.message);
   };
 
@@ -105,8 +106,10 @@ export default function LearningScreen() {
         {manager.selectMode ? (
           <LearningBatchBar
             allSelected={manager.allVisibleSelected}
+            primaryLabel={manager.statusFilter === 'done' ? '重新学习' : '完成学习'}
+            primaryIcon={manager.statusFilter === 'done' ? 'refresh' : 'check'}
             onSelectAll={manager.selectAllVisible}
-            onComplete={handleBulkComplete}
+            onPrimary={handleBulkPrimary}
             onRemove={handleBulkRemove}
           />
         ) : null}
@@ -119,7 +122,7 @@ export default function LearningScreen() {
                 plan={plan}
                 expanded={manager.isPlanExpanded(plan.id)}
                 selectMode={manager.selectMode}
-                selected={manager.isPlanSelected(plan.id)}
+                selected={manager.isPlanSelected(plan)}
                 partial={manager.isPlanPartial(plan)}
                 resources={manager.visibleTreeResources(plan)}
                 isResourceSelected={(resourceId) => manager.isResourceSelected(plan.id, resourceId)}

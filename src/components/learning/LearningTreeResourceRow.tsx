@@ -10,6 +10,8 @@ import { useLongPress } from '@/hooks/useLongPress';
 import type { StudyPlanCoverVariant, StudyPlanResource } from '@/types/studyPlan';
 import { stripResourceExtension } from '@/utils/learningManager';
 
+import { LearningTreeActionButton } from './LearningTreeActionButton';
+
 type LearningTreeResourceRowProps = {
   resource: StudyPlanResource;
   coverVariant: StudyPlanCoverVariant;
@@ -101,30 +103,18 @@ export function LearningTreeResourceRow({
 
       {!selectMode ? (
         <View style={styles.actions}>
-          <Pressable
-            style={[styles.actionButton, isDone && styles.reviewButton]}
-            onPress={(event) => {
-              event.stopPropagation();
-              if (isDone) {
-                onRestart();
-              } else {
-                onComplete();
-              }
-            }}
-            accessibilityLabel={isDone ? '重新学习资源' : '完成资源'}
-          >
-            <FontAwesome name={isDone ? 'refresh' : 'check'} size={13} color={isDone ? '#64748b' : '#0f766e'} />
-          </Pressable>
-          <Pressable
-            style={[styles.actionButton, styles.removeButton]}
-            onPress={(event) => {
-              event.stopPropagation();
-              onRemove();
-            }}
-            accessibilityLabel="移除资源"
-          >
-            <FontAwesome name="trash-o" size={13} color="#e11d48" />
-          </Pressable>
+          <LearningTreeActionButton
+            label={isDone ? '重新学习' : '完成学习'}
+            icon={isDone ? 'refresh' : 'check'}
+            variant={isDone ? 'review' : 'primary'}
+            onPress={isDone ? onRestart : onComplete}
+          />
+          <LearningTreeActionButton
+            label="移除"
+            icon="trash-o"
+            variant="danger"
+            onPress={onRemove}
+          />
         </View>
       ) : null}
     </Pressable>
@@ -243,23 +233,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-  },
-  actionButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(236,254,255,0.92)',
-    borderWidth: 1,
-    borderColor: 'rgba(153,246,228,0.86)',
-  },
-  reviewButton: {
-    backgroundColor: '#f8fafc',
-    borderColor: 'rgba(226,232,240,0.98)',
-  },
-  removeButton: {
-    backgroundColor: '#ffffff',
-    borderColor: 'rgba(254,205,211,0.96)',
+    flexShrink: 0,
   },
 });

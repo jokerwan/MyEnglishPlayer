@@ -5,15 +5,19 @@ import { AppText } from '@/components/common/AppText';
 
 type LearningBatchBarProps = {
   allSelected: boolean;
+  primaryLabel: string;
+  primaryIcon: 'check' | 'refresh';
   onSelectAll: () => void;
-  onComplete: () => void;
+  onPrimary: () => void;
   onRemove: () => void;
 };
 
 export function LearningBatchBar({
   allSelected,
+  primaryLabel,
+  primaryIcon,
   onSelectAll,
-  onComplete,
+  onPrimary,
   onRemove,
 }: LearningBatchBarProps) {
   return (
@@ -27,9 +31,9 @@ export function LearningBatchBar({
         <AppText style={styles.buttonText}>{allSelected ? '取消全选' : '全选'}</AppText>
       </Pressable>
 
-      <Pressable style={[styles.button, styles.primaryButton]} onPress={onComplete}>
-        <FontAwesome name="check" size={13} color="#ffffff" />
-        <AppText style={[styles.buttonText, styles.primaryText]}>完成学习</AppText>
+      <Pressable style={[styles.button, styles.primaryButton]} onPress={onPrimary}>
+        <FontAwesome name={primaryIcon} size={13} color="#ffffff" />
+        <AppText style={[styles.buttonText, styles.primaryText]}>{primaryLabel}</AppText>
       </Pressable>
 
       <Pressable style={[styles.button, styles.dangerButton]} onPress={onRemove}>

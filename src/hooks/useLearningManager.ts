@@ -50,10 +50,23 @@ export function useLearningManager() {
     if (visiblePlans.length === 0 && visibleResourceEntries.length === 0) {
       return false;
     }
-    const allPlansSelected = visiblePlans.every((plan) => selectedPlanIds.includes(plan.id));
+
+    const allPlansSelected = visiblePlans.every((plan) => {
+      if (selectedPlanIds.includes(plan.id)) {
+        return true;
+      }
+      if (plan.resources.length === 0) {
+        return false;
+      }
+      return plan.resources.every((resource) =>
+        selectedResourceKeys.includes(treeResourceKey(plan.id, resource.id)),
+      );
+    });
+
     const allResourcesSelected = visibleResourceEntries.every((entry) =>
       selectedResourceKeys.includes(entry.key),
     );
+
     return allPlansSelected && allResourcesSelected;
   }, [selectedPlanIds, selectedResourceKeys, visiblePlans, visibleResourceEntries]);
 
@@ -107,32 +120,63 @@ export function useLearningManager() {
     });
   }, [plans]);
 
-  const toggleResourceSelect = useCallback((planId: string, resourceId: string) => {
-    const key = treeResourceKey(planId, resourceId);
-    setSelectedResourceKeys((current) => {
-      if (current.includes(key)) {
-        setSelectedPlanIds((planIds) => planIds.filter((id) => id !== planId));
-        return current.filter((item) => item !== key);
+  const toggleResourceSelect = useCallback(
+    (planId: string, resourceId: string) => {
+      const plan = plans.find((item) => item.id === planId);
+      if (!plan) {
+        return;
       }
-      return [...current, key];
-    });
-  }, []);
 
-  const isPlanSelected = useCallback(
-    (planId: string) => selectedPlanIds.includes(planId),
-    [selectedPlanIds],
+      const key = treeResourceKey(planId, resourceId);
+      const resourceKeys = plan.resources.map((resource) => treeResourceKey(planId, resource.id));
+
+      setSelectedResourceKeys((current) => {
+        const next = current.includes(key)
+          ? current.filter((item) => item !== key)
+          : [...current, key];
+
+        const allChildrenSelected =
+          resourceKeys.length > 0 && resourceKeys.every((resourceKey) => next.includes(resourceKey));
+
+        setSelectedPlanIds((planIds) => {
+          if (allChildrenSelected) {
+            return planIds.includes(planId) ? planIds : [...planIds, planId];
+          }
+          return planIds.filter((id) => id !== planId);
+        });
+
+        return next;
+      });
+    },
+    [plans],
   );
 
-  const isPlanPartial = useCallback(
+  const isPlanSelected = useCallback(
     (plan: StudyPlan) => {
       if (selectedPlanIds.includes(plan.id)) {
+        return true;
+      }
+      if (plan.resources.length === 0) {
         return false;
       }
-      return plan.resources.some((resource) =>
+      return plan.resources.every((resource) =>
         selectedResourceKeys.includes(treeResourceKey(plan.id, resource.id)),
       );
     },
     [selectedPlanIds, selectedResourceKeys],
+  );
+
+  const isPlanPartial = useCallback(
+    (plan: StudyPlan) => {
+      if (isPlanSelected(plan)) {
+        return false;
+      }
+      const selectedCount = plan.resources.filter((resource) =>
+        selectedResourceKeys.includes(treeResourceKey(plan.id, resource.id)),
+      ).length;
+      return selectedCount > 0;
+    },
+    [isPlanSelected, selectedResourceKeys],
   );
 
   const isResourceSelected = useCallback(
@@ -330,6 +374,53 @@ export function useLearningManager() {
     return { ok: true as const, message: '已移除所选内容' };
   }, [exitSelectMode, selectedPlanIds, selectedResourceKeys]);
 
+  const bulkRestart = useCallback(() => {
+    if (selectedPlanIds.length === 0 && selectedResourceKeys.length === 0) {
+      return { ok: false as const, message: '请先选择合集或资源' };
+    }
+
+    setPlans((current) => {
+      const touchedPlanIds = new Set<string>(selectedPlanIds);
+      selectedResourceKeys.forEach((key) => {
+        touchedPlanIds.add(key.split('::')[0]);
+      });
+
+      return current.map((plan) => {
+        if (selectedPlanIds.includes(plan.id)) {
+          return updatePlanProgress({
+            ...plan,
+            status: 'learning',
+            progress: 0,
+            meta: '新一轮学习 · 从第 1 个内容开始',
+            resources: plan.resources.map((resource) => ({
+              ...resource,
+              done: false,
+              progress: 0,
+            })),
+          });
+        }
+
+        if (!touchedPlanIds.has(plan.id)) {
+          return plan;
+        }
+
+        const nextPlan = {
+          ...plan,
+          resources: plan.resources.map((resource) =>
+            selectedResourceKeys.includes(treeResourceKey(plan.id, resource.id))
+              ? { ...resource, done: false, progress: 0 }
+              : resource,
+          ),
+        };
+        return updatePlanProgress(nextPlan);
+      });
+    });
+
+    setStatusFilter('learning');
+    exitSelectMode();
+    return { ok: true as const, message: '已重新学习所选内容' };
+  }, [exitSelectMode, selectedPlanIds, selectedResourceKeys]);
+
   return {
     plans,
     statusFilter,
@@ -359,5 +450,6 @@ export function useLearningManager() {
     removeResource,
     bulkComplete,
     bulkRemove,
+    bulkRestart,
   };
 }

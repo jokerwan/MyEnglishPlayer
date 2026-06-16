@@ -10,6 +10,7 @@ import { useLongPress } from '@/hooks/useLongPress';
 import type { StudyPlan, StudyPlanResource } from '@/types/studyPlan';
 import { getPlanProgress, getPlanStatusMeta } from '@/utils/learningManager';
 
+import { LearningTreeActionButton } from './LearningTreeActionButton';
 import { LearningTreeResourceRow } from './LearningTreeResourceRow';
 
 type LearningTreePlanRowProps = {
@@ -130,30 +131,18 @@ export function LearningTreePlanRow({
 
         {!selectMode ? (
           <View style={styles.actions}>
-            <Pressable
-              style={[styles.actionButton, isDone && styles.reviewButton]}
-              onPress={(event) => {
-                event.stopPropagation();
-                if (isDone) {
-                  onRestart();
-                } else {
-                  onComplete();
-                }
-              }}
-              accessibilityLabel={isDone ? '重新学习合集' : '完成合集'}
-            >
-              <FontAwesome name={isDone ? 'refresh' : 'check'} size={14} color={isDone ? '#64748b' : '#0f766e'} />
-            </Pressable>
-            <Pressable
-              style={[styles.actionButton, styles.removeButton]}
-              onPress={(event) => {
-                event.stopPropagation();
-                onRemove();
-              }}
-              accessibilityLabel="移除合集"
-            >
-              <FontAwesome name="trash-o" size={14} color="#e11d48" />
-            </Pressable>
+            <LearningTreeActionButton
+              label={isDone ? '重新学习' : '完成学习'}
+              icon={isDone ? 'refresh' : 'check'}
+              variant={isDone ? 'review' : 'primary'}
+              onPress={isDone ? onRestart : onComplete}
+            />
+            <LearningTreeActionButton
+              label="移除"
+              icon="trash-o"
+              variant="danger"
+              onPress={onRemove}
+            />
           </View>
         ) : null}
       </Pressable>
@@ -317,24 +306,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-  },
-  actionButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(236,254,255,0.92)',
-    borderWidth: 1,
-    borderColor: 'rgba(153,246,228,0.86)',
-  },
-  reviewButton: {
-    backgroundColor: '#f8fafc',
-    borderColor: 'rgba(226,232,240,0.98)',
-  },
-  removeButton: {
-    backgroundColor: '#ffffff',
-    borderColor: 'rgba(254,205,211,0.96)',
+    flexShrink: 0,
   },
   children: {
     position: 'relative',
