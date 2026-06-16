@@ -1,11 +1,12 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/common/AppText';
 import { MiniPlayer } from '@/components/navigation/MiniPlayer';
 import { colors } from '@/constants/colors';
+import { usePlayer } from '@/hooks/useAppContext';
 
 const TAB_CONFIG = [
   { name: 'index', label: '首页', icon: 'home' },
@@ -36,10 +37,18 @@ type AppTabBarProps = {
 
 function AppTabBar({ state, navigation }: AppTabBarProps) {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const { player } = usePlayer();
 
   return (
     <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 8) }]}>
-      <MiniPlayer />
+      <MiniPlayer
+        onOpenDetail={() => {
+          if (player.resourceId) {
+            router.push(`/resource/${player.resourceId}`);
+          }
+        }}
+      />
       <View style={styles.tabRow}>
         {state.routes.map((route: TabRoute, index: number) => {
           const config = TAB_CONFIG.find((item) => item.name === route.name);

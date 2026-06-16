@@ -133,7 +133,7 @@ export default function LearningScreen() {
                 onRestart={() => handleRestartPlan(plan.id, plan.title)}
                 onRemove={() => handleRemovePlan(plan.id, plan.title, plan.status)}
                 onResourceLongPress={() => manager.enterSelectMode()}
-                onResourcePress={() => showToast(`管理资源：${plan.title}`)}
+                onResourcePress={(resourceId) => router.push(`/resource/${resourceId}`)}
                 onResourceSelect={(resourceId) => manager.toggleResourceSelect(plan.id, resourceId)}
                 onResourceComplete={(resourceId) => handleCompleteResource(plan.id, resourceId)}
                 onResourceRestart={(resourceId) => handleRestartResource(plan.id, resourceId)}

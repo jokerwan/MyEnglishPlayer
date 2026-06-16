@@ -13,6 +13,7 @@ type PlayerContextValue = {
   player: PlayerState;
   togglePlay: () => void;
   playPlan: (title: string, subtitle?: string) => void;
+  playResource: (resourceId: string, title: string, subtitle?: string) => void;
 };
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -46,6 +47,20 @@ export function AppProviders({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const playResource = useCallback(
+    (resourceId: string, title: string, subtitle = '来自：资源详情') => {
+      setPlayer((current) => ({
+        ...current,
+        resourceId,
+        title,
+        subtitle,
+        cover: title.slice(0, 3).toUpperCase(),
+        isPlaying: true,
+      }));
+    },
+    [],
+  );
+
   const toastValue = useMemo(
     () => ({
       message,
@@ -60,8 +75,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
       player,
       togglePlay,
       playPlan,
+      playResource,
     }),
-    [player, togglePlay, playPlan],
+    [player, togglePlay, playPlan, playResource],
   );
 
   return (

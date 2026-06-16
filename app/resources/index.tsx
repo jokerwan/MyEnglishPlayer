@@ -36,11 +36,7 @@ export default function ResourcesScreen() {
   };
 
   const handleResourcePress = (resourceId: string) => {
-    const resource = library.visibleResources.find((item) => item.id === resourceId);
-    if (!resource) {
-      return;
-    }
-    showToast(`查看资源详情：${resource.title.replace(/\.(mp4|mp3)$/i, '')}`);
+    router.push(`/resource/${resourceId}`);
   };
 
   const handleAddResourceToStudy = (resourceId: string) => {

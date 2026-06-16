@@ -8,6 +8,7 @@
 - 已完成上传页实现：`app/upload.tsx`
 - 已完成我的资源页实现：`app/resources/index.tsx`
 - 已完成我的学习页实现：`app/learning/index.tsx`、`app/learning/[planId].tsx`
+- 已完成资源详情页实现：`app/resource/[resourceId].tsx`
 - 其他页面等待逐页实现
 
 ## Phase 0: 原型拆解（已完成）
@@ -127,22 +128,22 @@
 
 ### 4.4 资源详情 / 精听页 `page-resource-detail`
 
-- [ ] 路由：`/resource/[resourceId]`
-- [ ] `ResourceVideoStage`
-- [ ] `ResourceMetaRow`
-- [ ] `TranscriptList` / `TranscriptLine`
-- [ ] `DetailToolbar` / `DetailControlButton`
-- [ ] `IntensiveListenOverlay`
-- [ ] `ResourceInfoSheet`
-- [ ] `ResourceNotesPane` / `ResourceWordsPane` / `ResourceStatsPane`
-- [ ] 调速、句级切换、精听、跟读、完成学习本地逻辑
+- [x] 路由：`/resource/[resourceId]`
+- [x] `ResourceVideoStage`
+- [x] `ResourceMetaRow`
+- [x] `TranscriptList` / `TranscriptLineItem`
+- [x] `DetailToolbar` / `DetailControlButton`
+- [x] `IntensiveListenOverlay`
+- [x] `ResourceInfoSheet`
+- [x] `ResourceNotesPane` / `ResourceWordsPane` / `ResourceStatsPane`
+- [x] 调速、句级切换、精听、跟读、完成学习本地逻辑
 
 ## Phase 5: 全局能力串联
 
 - [x] 根布局挂载 `MiniPlayer` + `BottomTabBar`
 - [ ] 在 upload / resources / resource-detail 页面隐藏 MiniPlayer
 - [x] 首页播放按钮与播放器状态联动
-- [ ] 资源详情与全局播放器双向同步标题、进度、播放态
+- [x] 资源详情与全局播放器双向同步标题、进度、播放态
 - [x] Toast 全局复用
 
 ## Phase 6: MVP 验证
