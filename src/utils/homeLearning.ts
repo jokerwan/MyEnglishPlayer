@@ -62,6 +62,14 @@ export function getPlanHeadMeta(plan: StudyPlan) {
   return `${plan.resources.length} 个资源 · 进度 ${progress}%`;
 }
 
+export function getHomeLearningCounts(plans: StudyPlan[]) {
+  const resourceCount = plans.reduce((sum, plan) => sum + plan.resources.length, 0);
+  return {
+    planCount: plans.length,
+    resourceCount,
+  };
+}
+
 export function filterHomePlans(plans: StudyPlan[], query: string, sortOrder: LearningSortOrder = 'desc') {
   const normalized = normalizedSearch(query);
   const sorted = sortPlans(plans, sortOrder);

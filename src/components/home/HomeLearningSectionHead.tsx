@@ -6,10 +6,17 @@ import { colors } from '@/constants/colors';
 
 type HomeLearningSectionHeadProps = {
   subtitle: string;
+  showExpandAll?: boolean;
+  onExpandAllPress: () => void;
   onManagePress: () => void;
 };
 
-export function HomeLearningSectionHead({ subtitle, onManagePress }: HomeLearningSectionHeadProps) {
+export function HomeLearningSectionHead({
+  subtitle,
+  showExpandAll = true,
+  onExpandAllPress,
+  onManagePress,
+}: HomeLearningSectionHeadProps) {
   return (
     <View style={styles.container}>
       <View style={styles.copy}>
@@ -18,10 +25,23 @@ export function HomeLearningSectionHead({ subtitle, onManagePress }: HomeLearnin
           {subtitle}
         </AppText>
       </View>
-      <Pressable style={styles.manageButton} onPress={onManagePress}>
-        <AppText style={styles.manageText}>管理 </AppText>
-        <FontAwesome name="angle-right" size={14} color={colors.primary} />
-      </Pressable>
+
+      <View style={styles.actions}>
+        {showExpandAll ? (
+          <Pressable
+            style={({ pressed }) => [styles.expandButton, pressed && styles.buttonPressed]}
+            onPress={onExpandAllPress}
+          >
+            <FontAwesome name="expand" size={12} color="#0f766e" />
+            <AppText style={styles.expandText}>展开全部</AppText>
+          </Pressable>
+        ) : null}
+
+        <Pressable style={styles.manageButton} onPress={onManagePress}>
+          <AppText style={styles.manageText}>管理</AppText>
+          <FontAwesome name="angle-right" size={14} color={colors.primary} />
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -52,13 +72,39 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     fontWeight: '700',
   },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexShrink: 0,
+  },
+  expandButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    height: 32,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    backgroundColor: '#f0fdfa',
+    borderWidth: 1,
+    borderColor: '#b7f5ea',
+  },
+  expandText: {
+    color: '#0f766e',
+    fontSize: 12,
+    fontWeight: '900',
+  },
   manageButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical: 6,
   },
   manageText: {
     color: '#0f766e',
     fontSize: 13,
     fontWeight: '900',
+  },
+  buttonPressed: {
+    opacity: 0.82,
   },
 });
