@@ -1,9 +1,9 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/common/AppText';
-import { colors } from '@/constants/colors';
 import { layout } from '@/constants/layout';
 import type { StudyPlan } from '@/types/studyPlan';
 
@@ -48,13 +48,18 @@ export function HomeLearningExpanded({
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
       <View style={[styles.screen, { paddingTop: insets.top }]}>
+        <LinearGradient
+          colors={['#edf7f4', '#f7faf9']}
+          style={StyleSheet.absoluteFill}
+        />
+
         <View style={styles.header}>
           <Pressable style={styles.closeButton} onPress={onClose} accessibilityLabel="收起我的学习">
             <FontAwesome name="chevron-down" size={16} color="#64748b" />
           </Pressable>
           <View style={styles.headerCopy}>
-            <AppText style={styles.headerTitle}>我的学习</AppText>
-            <AppText style={styles.headerDesc}>支持搜索合集与资源</AppText>
+            <AppText variant="sectionTitle">我的学习</AppText>
+            <AppText variant="sectionDesc">搜索合集或资源，快速定位内容</AppText>
           </View>
           <Pressable style={styles.manageButton} onPress={onManagePress}>
             <AppText style={styles.manageText}>管理</AppText>
@@ -70,17 +75,19 @@ export function HomeLearningExpanded({
           contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + layout.homeSafeBottom }]}
           keyboardShouldPersistTaps="handled"
         >
-          <HomeLearningTree
-            plans={plans}
-            recentPlanId={recentPlanId}
-            expandedPlanIds={expandedPlanIds}
-            playerResourceId={playerResourceId}
-            searchQuery={searchQuery}
-            onToggleExpanded={onToggleExpanded}
-            onContinuePress={onContinuePress}
-            onResourcePress={onResourcePress}
-            onResourceDetailPress={onResourceDetailPress}
-          />
+          <View style={styles.listCard}>
+            <HomeLearningTree
+              plans={plans}
+              recentPlanId={recentPlanId}
+              expandedPlanIds={expandedPlanIds}
+              playerResourceId={playerResourceId}
+              searchQuery={searchQuery}
+              onToggleExpanded={onToggleExpanded}
+              onContinuePress={onContinuePress}
+              onResourcePress={onResourcePress}
+              onResourceDetailPress={onResourceDetailPress}
+            />
+          </View>
         </ScrollView>
       </View>
     </Modal>
@@ -90,14 +97,14 @@ export function HomeLearningExpanded({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bgSoft,
+    backgroundColor: '#f7faf9',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
     paddingHorizontal: 16,
-    paddingBottom: 8,
+    paddingBottom: 10,
   },
   closeButton: {
     width: 36,
@@ -113,36 +120,36 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
-  headerTitle: {
-    color: colors.textMain,
-    fontSize: 18,
-    fontWeight: '900',
-  },
-  headerDesc: {
-    marginTop: 2,
-    color: '#94a3b8',
-    fontSize: 11,
-    fontWeight: '700',
-  },
   manageButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: '#ecfeff',
+    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#99f6e4',
+    borderColor: '#ccfbf1',
   },
   manageText: {
     color: '#0f766e',
     fontSize: 12,
-    fontWeight: '900',
+    fontWeight: '800',
   },
   searchWrap: {
     paddingHorizontal: 16,
-    paddingBottom: 8,
+    paddingBottom: 12,
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingTop: 4,
+  },
+  listCard: {
+    padding: 14,
+    borderRadius: 24,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e8eef2',
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.05,
+    shadowRadius: 20,
+    elevation: 2,
   },
 });

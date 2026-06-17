@@ -6,40 +6,39 @@ import { colors } from '@/constants/colors';
 
 type HomeLearningSectionHeadProps = {
   subtitle: string;
-  showExpandAll?: boolean;
   onExpandAllPress: () => void;
   onManagePress: () => void;
 };
 
 export function HomeLearningSectionHead({
   subtitle,
-  showExpandAll = true,
   onExpandAllPress,
   onManagePress,
 }: HomeLearningSectionHeadProps) {
   return (
     <View style={styles.container}>
       <View style={styles.copy}>
-        <AppText style={styles.title}>我的学习</AppText>
-        <AppText style={styles.subtitle} numberOfLines={2}>
+        <AppText variant="sectionTitle">我的学习</AppText>
+        <AppText variant="sectionDesc" numberOfLines={2}>
           {subtitle}
         </AppText>
       </View>
 
       <View style={styles.actions}>
-        {showExpandAll ? (
-          <Pressable
-            style={({ pressed }) => [styles.expandButton, pressed && styles.buttonPressed]}
-            onPress={onExpandAllPress}
-          >
-            <FontAwesome name="expand" size={12} color="#0f766e" />
-            <AppText style={styles.expandText}>展开全部</AppText>
-          </Pressable>
-        ) : null}
+        <Pressable
+          style={({ pressed }) => [styles.actionButton, pressed && styles.actionPressed]}
+          onPress={onExpandAllPress}
+        >
+          <FontAwesome name="search" size={12} color="#0f766e" />
+          <AppText style={styles.actionText}>展开全部</AppText>
+        </Pressable>
 
-        <Pressable style={styles.manageButton} onPress={onManagePress}>
-          <AppText style={styles.manageText}>管理</AppText>
-          <FontAwesome name="angle-right" size={14} color={colors.primary} />
+        <Pressable
+          style={({ pressed }) => [styles.actionButton, pressed && styles.actionPressed]}
+          onPress={onManagePress}
+        >
+          <AppText style={styles.actionText}>管理</AppText>
+          <FontAwesome name="angle-right" size={12} color="#0f766e" />
         </Pressable>
       </View>
     </View>
@@ -49,62 +48,40 @@ export function HomeLearningSectionHead({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: 12,
-    marginBottom: 12,
+    marginBottom: 14,
   },
   copy: {
     flex: 1,
     minWidth: 0,
-  },
-  title: {
-    color: colors.textMain,
-    fontSize: 19,
-    lineHeight: 22,
-    fontWeight: '900',
-    letterSpacing: -0.4,
-  },
-  subtitle: {
-    marginTop: 5,
-    color: '#94a3b8',
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: '700',
   },
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
     flexShrink: 0,
+    paddingTop: 2,
   },
-  expandButton: {
+  actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 4,
     height: 32,
     paddingHorizontal: 10,
     borderRadius: 999,
-    backgroundColor: '#f0fdfa',
+    backgroundColor: '#f8fafc',
     borderWidth: 1,
-    borderColor: '#b7f5ea',
+    borderColor: '#e8eef2',
   },
-  expandText: {
+  actionText: {
     color: '#0f766e',
     fontSize: 12,
-    fontWeight: '900',
+    fontWeight: '800',
   },
-  manageButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 6,
-  },
-  manageText: {
-    color: '#0f766e',
-    fontSize: 13,
-    fontWeight: '900',
-  },
-  buttonPressed: {
+  actionPressed: {
     opacity: 0.82,
+    backgroundColor: '#f0fdfa',
   },
 });

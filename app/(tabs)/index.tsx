@@ -1,28 +1,19 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppText } from '@/components/common/AppText';
-import { HomeContinueCard } from '@/components/home/HomeContinueCard';
 import { HomeHero } from '@/components/home/HomeHero';
 import { HomeLearningExpanded } from '@/components/home/HomeLearningExpanded';
-import { HomeLearningSectionHead } from '@/components/home/HomeLearningSectionHead';
-import { HomeLearningSummary } from '@/components/home/HomeLearningSummary';
-import { HomeLearningTree, useHomeLearningDefaults } from '@/components/home/HomeLearningTree';
-import { colors } from '@/constants/colors';
+import { HomeLearningEmpty, HomeLearningModule } from '@/components/home/HomeLearningModule';
+import { useHomeLearningDefaults } from '@/components/home/HomeLearningTree';
 import { layout } from '@/constants/layout';
 import { usePlayer, useToast } from '@/hooks/useAppContext';
 import { useAppData } from '@/hooks/useAppData';
-import {
-  formatHomeResumeSubtitle,
-  formatResourceResumeMeta,
-  getHomeLearningCounts,
-} from '@/utils/homeLearning';
+import { formatHomeResumeSubtitle, getHomeLearningCounts } from '@/utils/homeLearning';
 import { getContinueResource, stripResourceExtension } from '@/utils/learningManager';
 import type { StudyPlan } from '@/types/studyPlan';
-
-const HOME_PREVIEW_LIMIT = 2;
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -42,26 +33,6 @@ export default function HomeScreen() {
   );
 
   const learningCounts = useMemo(() => getHomeLearningCounts(learningPlans), [learningPlans]);
-  const previewPlans = useMemo(() => {
-    if (learningPlans.length <= HOME_PREVIEW_LIMIT) {
-      return learningPlans;
-    }
-
-    const recent = recentPlanId
-      ? learningPlans.find((plan) => plan.id === recentPlanId) ?? null
-      : null;
-
-    if (!recent) {
-      return learningPlans.slice(0, HOME_PREVIEW_LIMIT);
-    }
-
-    const others = learningPlans
-      .filter((plan) => plan.id !== recentPlanId)
-      .slice(0, HOME_PREVIEW_LIMIT - 1);
-
-    return [recent, ...others];
-  }, [learningPlans, recentPlanId]);
-  const hiddenPlanCount = Math.max(learningPlans.length - previewPlans.length, 0);
 
   const [expandedPlanIds, setExpandedPlanIds] = useState<Set<string>>(() => new Set());
   const [expandedModalVisible, setExpandedModalVisible] = useState(false);
@@ -135,70 +106,40 @@ export default function HomeScreen() {
     setSearchQuery('');
   }, []);
 
-  const handleContinueCardPress = useCallback(() => {
-    if (recentPlan) {
-      playFromPlan(recentPlan, recentResource?.id);
-    }
-  }, [playFromPlan, recentPlan, recentResource?.id]);
-
-  const handleContinueDetailPress = useCallback(() => {
-    if (recentResource) {
-      handleResourceDetailPress(recentResource.id);
-    }
-  }, [handleResourceDetailPress, recentResource]);
-
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+    <View style={styles.screen}>
+      <LinearGradient
+        colors={['#e8f4f1', '#f3f8f7', '#f7faf9']}
+        locations={[0, 0.28, 1]}
+        style={StyleSheet.absoluteFill}
+      />
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top }]}
+      >
         <HomeHero />
 
         <View style={styles.content}>
           {learningPlans.length > 0 ? (
-            <HomeLearningSummary
+            <HomeLearningModule
+              plans={learningPlans}
               planCount={learningCounts.planCount}
               resourceCount={learningCounts.resourceCount}
-            />
-          ) : null}
-
-          {recentPlan && recentResource ? (
-            <HomeContinueCard
-              planTitle={recentPlan.title}
-              resourceTitle={stripResourceExtension(recentResource.title)}
-              progress={recentResource.done ? 100 : recentResource.progress}
-              meta={formatResourceResumeMeta(recentResource)}
-              onContinuePress={handleContinueCardPress}
-              onDetailPress={handleContinueDetailPress}
-            />
-          ) : null}
-
-          <HomeLearningSectionHead
-            subtitle={resumeSubtitle}
-            showExpandAll={learningPlans.length > 0}
-            onExpandAllPress={handleExpandAllPress}
-            onManagePress={handleManagePress}
-          />
-
-          <View style={styles.treePanel}>
-            <HomeLearningTree
-              plans={previewPlans}
+              subtitle={resumeSubtitle}
               recentPlanId={recentPlanId}
               expandedPlanIds={expandedPlanIds}
               playerResourceId={player.resourceId}
+              onExpandAllPress={handleExpandAllPress}
+              onManagePress={handleManagePress}
               onToggleExpanded={handleToggleExpanded}
               onContinuePress={playFromPlan}
               onResourcePress={playFromPlan}
               onResourceDetailPress={handleResourceDetailPress}
             />
-
-            {hiddenPlanCount > 0 ? (
-              <Pressable
-                style={({ pressed }) => [styles.moreButton, pressed && styles.moreButtonPressed]}
-                onPress={handleExpandAllPress}
-              >
-                <AppText style={styles.moreText}>还有 {hiddenPlanCount} 个合集，展开全部查看</AppText>
-              </Pressable>
-            ) : null}
-          </View>
+          ) : (
+            <HomeLearningEmpty onBrowseResources={() => router.push('/resources')} />
+          )}
 
           <View style={styles.safeBottom} />
         </View>
@@ -227,44 +168,14 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bgSoft,
+    backgroundColor: '#f7faf9',
   },
   scrollContent: {
     paddingBottom: 8,
   },
   content: {
-    marginTop: -22,
-    paddingHorizontal: layout.screenPadding,
-    zIndex: 4,
-  },
-  treePanel: {
-    padding: 14,
-    borderRadius: 24,
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#e6edf3',
-    shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.04,
-    shadowRadius: 18,
-    elevation: 2,
-  },
-  moreButton: {
-    marginTop: 4,
-    paddingVertical: 12,
-    alignItems: 'center',
-    borderRadius: 16,
-    backgroundColor: '#f8fafc',
-    borderWidth: 1,
-    borderColor: '#eef2f7',
-  },
-  moreButtonPressed: {
-    opacity: 0.86,
-  },
-  moreText: {
-    color: '#0f766e',
-    fontSize: 12,
-    fontWeight: '800',
+    paddingHorizontal: 16,
+    marginTop: 6,
   },
   safeBottom: {
     height: layout.homeSafeBottom,

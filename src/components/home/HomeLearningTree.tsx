@@ -18,6 +18,7 @@ type HomeLearningTreeProps = {
   expandedPlanIds: Set<string>;
   playerResourceId?: string;
   searchQuery?: string;
+  embedded?: boolean;
   onToggleExpanded: (planId: string) => void;
   onContinuePress: (plan: StudyPlan) => void;
   onResourcePress: (plan: StudyPlan, resourceId: string) => void;
@@ -30,6 +31,7 @@ export function HomeLearningTree({
   expandedPlanIds,
   playerResourceId,
   searchQuery = '',
+  embedded = false,
   onToggleExpanded,
   onContinuePress,
   onResourcePress,
@@ -50,6 +52,10 @@ export function HomeLearningTree({
   }, [plans, searchQuery]);
 
   if (!visiblePlans.length) {
+    if (embedded) {
+      return null;
+    }
+
     return (
       <View style={styles.empty}>
         <AppText style={styles.emptyTitle}>还没有正在学习的内容</AppText>
@@ -59,7 +65,7 @@ export function HomeLearningTree({
   }
 
   return (
-    <View style={styles.list}>
+    <View style={[styles.list, embedded && styles.listEmbedded]}>
       {visiblePlans.map((plan) => {
         const expanded = expandedPlanIds.has(plan.id);
         const resources = getVisibleHomeResources(plan, searchQuery);
@@ -70,6 +76,7 @@ export function HomeLearningTree({
             key={plan.id}
             plan={plan}
             expanded={expanded}
+            embedded={embedded}
             emphasized={plan.id === recentPlanId}
             resources={expanded ? resources : []}
             highlightedResourceId={highlightedResourceId}
@@ -107,6 +114,9 @@ export function useHomeLearningDefaults(plans: StudyPlan[], playerResourceId?: s
 const styles = StyleSheet.create({
   list: {
     gap: 12,
+  },
+  listEmbedded: {
+    gap: 10,
   },
   empty: {
     paddingVertical: 28,

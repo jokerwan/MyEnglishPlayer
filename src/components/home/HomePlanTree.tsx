@@ -12,6 +12,7 @@ import { HomeResourceRow } from './HomeResourceRow';
 type HomePlanTreeProps = {
   plan: StudyPlan;
   expanded: boolean;
+  embedded?: boolean;
   emphasized?: boolean;
   resources: StudyPlanResource[];
   highlightedResourceId: string | null;
@@ -24,6 +25,7 @@ type HomePlanTreeProps = {
 export function HomePlanTree({
   plan,
   expanded,
+  embedded = false,
   emphasized = false,
   resources,
   highlightedResourceId,
@@ -32,8 +34,8 @@ export function HomePlanTree({
   onResourcePress,
   onResourceDetailPress,
 }: HomePlanTreeProps) {
-  return (
-    <TreeGroupCard>
+  const content = (
+    <>
       <View style={styles.head}>
         <Pressable
           style={({ pressed }) => [styles.headMain, pressed && styles.headMainPressed]}
@@ -41,7 +43,7 @@ export function HomePlanTree({
           accessibilityRole="button"
           accessibilityLabel={plan.title}
         >
-          <View style={styles.folderIcon}>
+          <View style={[styles.folderIcon, embedded && styles.folderIconEmbedded]}>
             <FontAwesome name="folder-open" size={16} color="#0f766e" />
           </View>
           <View style={styles.meta}>
@@ -74,11 +76,28 @@ export function HomePlanTree({
           ))}
         </TreeChildrenRail>
       ) : null}
-    </TreeGroupCard>
+    </>
   );
+
+  if (embedded) {
+    return <View style={[styles.embeddedCard, expanded && styles.embeddedCardExpanded]}>{content}</View>;
+  }
+
+  return <TreeGroupCard>{content}</TreeGroupCard>;
 }
 
 const styles = StyleSheet.create({
+  embeddedCard: {
+    padding: 12,
+    borderRadius: 20,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#eef2f7',
+  },
+  embeddedCardExpanded: {
+    backgroundColor: '#ffffff',
+    borderColor: '#e2e8f0',
+  },
   head: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -102,6 +121,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#f3fbfa',
+  },
+  folderIconEmbedded: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    backgroundColor: '#f0fdfa',
   },
   meta: {
     flex: 1,

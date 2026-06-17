@@ -11,13 +11,26 @@ type HomeLearningSummaryProps = {
 export function HomeLearningSummary({ planCount, resourceCount }: HomeLearningSummaryProps) {
   return (
     <View style={styles.container}>
-      <View style={styles.chip}>
-        <FontAwesome name="folder-open-o" size={12} color="#0f766e" />
-        <AppText style={styles.chipText}>{planCount} 个合集正在学</AppText>
+      <View style={styles.stat}>
+        <View style={styles.iconWrap}>
+          <FontAwesome name="folder-open-o" size={14} color="#0f766e" />
+        </View>
+        <View style={styles.copy}>
+          <AppText style={styles.value}>{planCount}</AppText>
+          <AppText style={styles.label}>合集正在学</AppText>
+        </View>
       </View>
-      <View style={styles.chip}>
-        <FontAwesome name="headphones" size={12} color="#0f766e" />
-        <AppText style={styles.chipText}>{resourceCount} 个资源进行中</AppText>
+
+      <View style={styles.divider} />
+
+      <View style={styles.stat}>
+        <View style={styles.iconWrap}>
+          <FontAwesome name="headphones" size={14} color="#0f766e" />
+        </View>
+        <View style={styles.copy}>
+          <AppText style={styles.value}>{resourceCount}</AppText>
+          <AppText style={styles.label}>资源进行中</AppText>
+        </View>
       </View>
     </View>
   );
@@ -26,24 +39,46 @@ export function HomeLearningSummary({ planCount, resourceCount }: HomeLearningSu
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 14,
+    alignItems: 'stretch',
+    paddingVertical: 4,
   },
-  chip: {
+  stat: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 11,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#e6edf3',
+    gap: 10,
+    minWidth: 0,
   },
-  chipText: {
-    color: '#0f766e',
+  iconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f0fdfa',
+    borderWidth: 1,
+    borderColor: '#ccfbf1',
+  },
+  copy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  value: {
+    color: '#0f172a',
+    fontSize: 22,
+    fontWeight: '900',
+    lineHeight: 24,
+    letterSpacing: -0.6,
+  },
+  label: {
+    marginTop: 2,
+    color: '#64748b',
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: '700',
+  },
+  divider: {
+    width: 1,
+    marginHorizontal: 14,
+    backgroundColor: '#e8eef2',
   },
 });
