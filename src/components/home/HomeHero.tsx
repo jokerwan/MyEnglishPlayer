@@ -1,31 +1,84 @@
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/common/AppText';
-import { colors } from '@/constants/colors';
+import { homeTheme } from '@/constants/homeTheme';
 import { mockUser } from '@/data/mockUser';
 import { useGreeting } from '@/hooks/useGreeting';
 
-export function HomeHero() {
+const BUBBLES = [
+  { size: 18, left: 20, bottom: 28 },
+  { size: 12, left: 56, bottom: 16 },
+  { size: 26, right: 58, bottom: 24 },
+  { size: 10, right: 24, bottom: 14 },
+] as const;
+
+type HomeHeroProps = {
+  onNotificationsPress?: () => void;
+};
+
+export function HomeHero({ onNotificationsPress }: HomeHeroProps) {
   const { greeting, motivation } = useGreeting();
 
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#ffffff', '#f8fffe', '#f7faf9']}
-        locations={[0, 0.7, 1]}
+        colors={[...homeTheme.heroGradient]}
+        locations={[0, 0.62, 1]}
         style={StyleSheet.absoluteFill}
       />
-      <View style={styles.glowTop} pointerEvents="none" />
-      <View style={styles.glowRight} pointerEvents="none" />
+      <LinearGradient
+        colors={['rgba(45,212,191,0.22)', 'rgba(45,212,191,0.06)', 'transparent']}
+        start={{ x: 1, y: 0 }}
+        end={{ x: 0.2, y: 1 }}
+        style={styles.radialGlow}
+        pointerEvents="none"
+      />
 
-      <View style={styles.inner}>
-        <AppText style={styles.kicker}>LISTEN · SPEAK · REPEAT</AppText>
-        <AppText style={styles.greeting}>
-          {greeting}，{mockUser.name}
-        </AppText>
-        <AppText style={styles.subtitle}>{motivation}</AppText>
+      <View style={styles.bubbleLayer} pointerEvents="none">
+        {BUBBLES.map((bubble, index) => (
+          <View
+            key={index}
+            style={[
+              styles.bubble,
+              {
+                width: bubble.size,
+                height: bubble.size,
+                ...( 'left' in bubble ? { left: bubble.left } : { right: bubble.right }),
+                bottom: bubble.bottom,
+              },
+            ]}
+          />
+        ))}
       </View>
+
+      <View style={styles.decorIllustration} pointerEvents="none">
+        <View style={styles.decorBook} />
+        <View style={styles.decorHeadphones}>
+          <FontAwesome name="headphones" size={22} color="#0f766e" />
+        </View>
+      </View>
+
+      <View style={styles.topRow}>
+        <View style={styles.inner}>
+          <AppText style={styles.kicker}>LISTEN · SPEAK · REPEAT</AppText>
+          <AppText style={styles.greeting}>
+            {greeting}，{mockUser.name}
+          </AppText>
+          <AppText style={styles.subtitle}>{motivation}</AppText>
+        </View>
+
+        <Pressable
+          style={({ pressed }) => [styles.bellButton, pressed && styles.bellPressed]}
+          onPress={onNotificationsPress}
+          accessibilityLabel="通知"
+        >
+          <FontAwesome name="bell-o" size={18} color="#64748b" />
+        </Pressable>
+      </View>
+
+      <View style={styles.fadeEdge} pointerEvents="none" />
     </View>
   );
 }
@@ -34,54 +87,118 @@ const styles = StyleSheet.create({
   container: {
     position: 'relative',
     overflow: 'hidden',
-    paddingTop: 28,
-    paddingBottom: 28,
+    paddingTop: 12,
+    paddingBottom: 42,
     paddingHorizontal: 20,
   },
-  glowTop: {
+  radialGlow: {
     position: 'absolute',
-    left: -40,
-    top: -30,
-    width: 180,
-    height: 120,
+    right: -30,
+    top: -20,
+    width: 220,
+    height: 180,
     borderRadius: 999,
-    backgroundColor: 'rgba(45,212,191,0.14)',
   },
-  glowRight: {
+  bubbleLayer: {
+    ...StyleSheet.absoluteFill,
+    overflow: 'hidden',
+  },
+  bubble: {
     position: 'absolute',
-    right: -20,
-    top: 10,
-    width: 100,
-    height: 100,
-    borderRadius: 32,
-    backgroundColor: 'rgba(20,184,166,0.1)',
-    transform: [{ rotate: '12deg' }],
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.55)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.6)',
+    opacity: 0.72,
+  },
+  decorIllustration: {
+    position: 'absolute',
+    right: 18,
+    top: 54,
+    width: 78,
+    height: 78,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  decorBook: {
+    position: 'absolute',
+    bottom: 8,
+    width: 52,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: 'rgba(20,184,166,0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(153,246,228,0.7)',
+    transform: [{ rotate: '-8deg' }],
+  },
+  decorHeadphones: {
+    width: 48,
+    height: 48,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    borderWidth: 1,
+    borderColor: 'rgba(204,251,241,0.9)',
+    shadowColor: '#14b8a6',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 2,
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
   },
   inner: {
-    position: 'relative',
-    zIndex: 1,
+    flex: 1,
+    minWidth: 0,
+    paddingRight: 72,
+  },
+  bellButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.82)',
+    borderWidth: 1,
+    borderColor: 'rgba(226,232,240,0.9)',
+  },
+  bellPressed: {
+    opacity: 0.8,
   },
   kicker: {
-    color: '#0f766e',
-    fontSize: 11,
+    color: homeTheme.primaryDeep,
+    fontSize: 12,
     fontWeight: '800',
-    letterSpacing: 1.2,
-    opacity: 0.7,
+    letterSpacing: 0.6,
+    opacity: 0.72,
   },
   greeting: {
-    marginTop: 10,
-    color: colors.textMain,
-    fontSize: 30,
-    lineHeight: 34,
+    marginTop: 13,
+    color: homeTheme.ink,
+    fontSize: 32,
+    lineHeight: 35,
     fontWeight: '900',
-    letterSpacing: -1,
+    letterSpacing: -1.1,
   },
   subtitle: {
-    marginTop: 8,
-    maxWidth: 300,
-    color: colors.textMuted,
+    marginTop: 10,
+    maxWidth: 280,
+    color: homeTheme.muted,
     fontSize: 14,
     lineHeight: 21,
-    fontWeight: '500',
+    fontWeight: '600',
+  },
+  fadeEdge: {
+    position: 'absolute',
+    left: '-6%',
+    right: '-6%',
+    bottom: -28,
+    height: 84,
+    borderRadius: 999,
+    backgroundColor: 'rgba(247,250,249,0.72)',
   },
 });

@@ -8,6 +8,7 @@ import { HomeHero } from '@/components/home/HomeHero';
 import { HomeLearningExpanded } from '@/components/home/HomeLearningExpanded';
 import { HomeLearningEmpty, HomeLearningModule } from '@/components/home/HomeLearningModule';
 import { useHomeLearningDefaults } from '@/components/home/HomeLearningTree';
+import { homeTheme } from '@/constants/homeTheme';
 import { layout } from '@/constants/layout';
 import { mockHomeStats } from '@/data/mockHome';
 import { usePlayer, useToast } from '@/hooks/useAppContext';
@@ -110,8 +111,8 @@ export default function HomeScreen() {
   return (
     <View style={styles.screen}>
       <LinearGradient
-        colors={['#e8f4f1', '#f3f8f7', '#f7faf9']}
-        locations={[0, 0.28, 1]}
+        colors={[...homeTheme.bgGradient]}
+        locations={[0, 0.24, 1]}
         style={StyleSheet.absoluteFill}
       />
 
@@ -119,7 +120,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top }]}
       >
-        <HomeHero />
+        <HomeHero onNotificationsPress={() => showToast('暂无新通知')} />
 
         <View style={styles.content}>
           {learningPlans.length > 0 ? (
@@ -170,14 +171,15 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#f7faf9',
+    backgroundColor: homeTheme.bg,
   },
   scrollContent: {
     paddingBottom: 8,
   },
   content: {
     paddingHorizontal: 16,
-    marginTop: 6,
+    marginTop: -22,
+    zIndex: 4,
   },
   safeBottom: {
     height: layout.homeSafeBottom,

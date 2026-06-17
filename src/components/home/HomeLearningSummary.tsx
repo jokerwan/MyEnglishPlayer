@@ -2,6 +2,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/common/AppText';
+import { homeTheme } from '@/constants/homeTheme';
 
 type HomeLearningSummaryProps = {
   planCount: number;
@@ -19,7 +20,7 @@ function SummaryItem({ icon, value, label }: SummaryItemProps) {
   return (
     <View style={styles.item}>
       <View style={styles.iconWrap}>
-        <FontAwesome name={icon} size={13} color="#0f766e" />
+        <FontAwesome name={icon} size={14} color={homeTheme.primaryDeep} />
       </View>
       <AppText style={styles.value} numberOfLines={1}>
         {value}
@@ -51,44 +52,44 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'stretch',
-    paddingVertical: 2,
+    paddingVertical: 4,
   },
   item: {
     flex: 1,
     alignItems: 'center',
     minWidth: 0,
-    paddingHorizontal: 4,
+    paddingHorizontal: 2,
   },
   iconWrap: {
-    width: 32,
-    height: 32,
-    borderRadius: 12,
+    width: 34,
+    height: 34,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f0fdfa',
+    backgroundColor: homeTheme.primarySoft,
     borderWidth: 1,
-    borderColor: '#ccfbf1',
+    borderColor: homeTheme.primaryBorder,
   },
   value: {
-    marginTop: 8,
-    color: '#0f172a',
-    fontSize: 20,
+    marginTop: 9,
+    color: homeTheme.ink,
+    fontSize: 22,
     fontWeight: '900',
-    lineHeight: 22,
-    letterSpacing: -0.5,
+    lineHeight: 24,
+    letterSpacing: -0.6,
     textAlign: 'center',
   },
   label: {
-    marginTop: 3,
-    color: '#64748b',
-    fontSize: 10,
+    marginTop: 4,
+    color: homeTheme.muted,
+    fontSize: 11,
     fontWeight: '700',
-    lineHeight: 13,
+    lineHeight: 14,
     textAlign: 'center',
   },
   divider: {
     width: 1,
-    marginVertical: 6,
+    marginVertical: 8,
     backgroundColor: '#e8eef2',
   },
 });

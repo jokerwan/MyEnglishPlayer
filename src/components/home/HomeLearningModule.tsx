@@ -2,11 +2,11 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/common/AppText';
-import { colors } from '@/constants/colors';
+import { homeTheme } from '@/constants/homeTheme';
 import type { StudyPlan } from '@/types/studyPlan';
 
-import { HomeLearningSectionHead } from './HomeLearningSectionHead';
 import { HomeLearningSummary } from './HomeLearningSummary';
+import { HomeLearningToolbar, HomeTreeSectionHead } from './HomeLearningToolbar';
 import { HomeLearningTree } from './HomeLearningTree';
 
 type HomeLearningModuleProps = {
@@ -44,6 +44,8 @@ export function HomeLearningModule({
 }: HomeLearningModuleProps) {
   return (
     <View style={styles.card}>
+      <AppText style={styles.moduleTitle}>我的学习</AppText>
+
       <HomeLearningSummary
         planCount={planCount}
         resourceCount={resourceCount}
@@ -52,18 +54,19 @@ export function HomeLearningModule({
 
       <View style={styles.sectionDivider} />
 
-      <HomeLearningSectionHead
+      <HomeLearningToolbar
         subtitle={subtitle}
         onExpandAllPress={onExpandAllPress}
         onManagePress={onManagePress}
       />
+
+      <HomeTreeSectionHead />
 
       <HomeLearningTree
         plans={plans}
         recentPlanId={recentPlanId}
         expandedPlanIds={expandedPlanIds}
         playerResourceId={playerResourceId}
-        embedded
         onToggleExpanded={onToggleExpanded}
         onContinuePress={onContinuePress}
         onResourcePress={onResourcePress}
@@ -81,7 +84,7 @@ export function HomeLearningEmpty({ onBrowseResources }: HomeLearningEmptyProps)
   return (
     <View style={styles.emptyCard}>
       <View style={styles.emptyIcon}>
-        <FontAwesome name="book" size={22} color="#0f766e" />
+        <FontAwesome name="book" size={22} color={homeTheme.primaryDeep} />
       </View>
       <AppText style={styles.emptyTitle}>还没有在学习的内容</AppText>
       <AppText style={styles.emptyDesc}>
@@ -101,30 +104,36 @@ export function HomeLearningEmpty({ onBrowseResources }: HomeLearningEmptyProps)
 const styles = StyleSheet.create({
   card: {
     padding: 18,
-    borderRadius: 28,
-    backgroundColor: colors.white,
+    borderRadius: homeTheme.cardRadius,
+    backgroundColor: homeTheme.cardBg,
     borderWidth: 1,
-    borderColor: 'rgba(230,237,243,0.96)',
-    shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.07,
-    shadowRadius: 28,
-    elevation: 4,
+    borderColor: homeTheme.cardBorder,
+    shadowColor: homeTheme.shadow.color,
+    shadowOffset: homeTheme.shadow.offset,
+    shadowOpacity: homeTheme.shadow.opacity,
+    shadowRadius: homeTheme.shadow.radius,
+    elevation: homeTheme.shadow.elevation,
+  },
+  moduleTitle: {
+    color: homeTheme.ink,
+    fontSize: 19,
+    fontWeight: '900',
+    letterSpacing: -0.4,
+    marginBottom: 14,
   },
   sectionDivider: {
     height: 1,
-    marginVertical: 16,
-    backgroundColor: '#eef2f7',
+    backgroundColor: homeTheme.line,
   },
   emptyCard: {
     alignItems: 'center',
     paddingVertical: 36,
     paddingHorizontal: 22,
-    borderRadius: 28,
-    backgroundColor: colors.white,
+    borderRadius: homeTheme.cardRadius,
+    backgroundColor: homeTheme.cardBg,
     borderWidth: 1,
-    borderColor: 'rgba(230,237,243,0.96)',
-    shadowColor: '#0f172a',
+    borderColor: homeTheme.cardBorder,
+    shadowColor: homeTheme.shadow.color,
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.05,
     shadowRadius: 24,
@@ -136,19 +145,19 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f0fdfa',
+    backgroundColor: homeTheme.primarySoft,
     borderWidth: 1,
-    borderColor: '#ccfbf1',
+    borderColor: homeTheme.primaryBorder,
   },
   emptyTitle: {
     marginTop: 16,
-    color: colors.textMain,
+    color: homeTheme.ink,
     fontSize: 17,
     fontWeight: '900',
   },
   emptyDesc: {
     marginTop: 8,
-    color: '#94a3b8',
+    color: homeTheme.subtle,
     fontSize: 13,
     lineHeight: 20,
     fontWeight: '600',
@@ -162,8 +171,8 @@ const styles = StyleSheet.create({
     height: 42,
     paddingHorizontal: 18,
     borderRadius: 999,
-    backgroundColor: '#14b8a6',
-    shadowColor: '#14b8a6',
+    backgroundColor: homeTheme.primary,
+    shadowColor: homeTheme.primary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 16,

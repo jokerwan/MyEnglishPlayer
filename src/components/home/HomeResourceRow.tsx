@@ -2,6 +2,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/common/AppText';
+import { homeTheme } from '@/constants/homeTheme';
 import { formatResourceResumeMeta } from '@/utils/homeLearning';
 import { stripResourceExtension } from '@/utils/learningManager';
 import type { StudyPlanResource } from '@/types/studyPlan';
@@ -10,6 +11,7 @@ type HomeResourceRowProps = {
   resource: StudyPlanResource;
   isCurrent?: boolean;
   onPress: () => void;
+  onPlayPress: () => void;
   onDetailPress: () => void;
 };
 
@@ -17,6 +19,7 @@ export function HomeResourceRow({
   resource,
   isCurrent = false,
   onPress,
+  onPlayPress,
   onDetailPress,
 }: HomeResourceRowProps) {
   const title = stripResourceExtension(resource.title);
@@ -40,24 +43,38 @@ export function HomeResourceRow({
         {isCurrent ? (
           <View style={styles.resumeTag}>
             <View style={styles.resumeIcon}>
-              <FontAwesome name="map-marker" size={8} color="#0f766e" />
+              <FontAwesome name="map-marker" size={8} color={homeTheme.primaryDeep} />
             </View>
             <AppText style={styles.resumeText}>上次听到这里</AppText>
           </View>
         ) : null}
       </View>
 
-      <Pressable
-        style={({ pressed }) => [styles.detailButton, pressed && styles.detailButtonPressed]}
-        onPress={(event) => {
-          event.stopPropagation();
-          onDetailPress();
-        }}
-        accessibilityRole="button"
-        accessibilityLabel={`查看${title}详情`}
-      >
-        <FontAwesome name="angle-right" size={22} color={isCurrent ? '#7aa7a0' : '#94a3b8'} />
-      </Pressable>
+      <View style={styles.actions}>
+        <Pressable
+          style={({ pressed }) => [styles.playButton, pressed && styles.playButtonPressed]}
+          onPress={(event) => {
+            event.stopPropagation();
+            onPlayPress();
+          }}
+          accessibilityRole="button"
+          accessibilityLabel={`播放${title}`}
+        >
+          <FontAwesome name="play" size={9} color={homeTheme.primaryDeep} style={styles.playIcon} />
+        </Pressable>
+
+        <Pressable
+          style={({ pressed }) => [styles.detailButton, pressed && styles.detailButtonPressed]}
+          onPress={(event) => {
+            event.stopPropagation();
+            onDetailPress();
+          }}
+          accessibilityRole="button"
+          accessibilityLabel={`查看${title}详情`}
+        >
+          <FontAwesome name="angle-right" size={20} color={isCurrent ? '#7aa7a0' : '#94a3b8'} />
+        </Pressable>
+      </View>
     </Pressable>
   );
 }
@@ -70,7 +87,7 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingVertical: 12,
     paddingLeft: 14,
-    paddingRight: 8,
+    paddingRight: 6,
     borderRadius: 14,
   },
   rowCurrent: {
@@ -87,10 +104,6 @@ const styles = StyleSheet.create({
     width: 3,
     borderRadius: 999,
     backgroundColor: '#2dd4bf',
-    shadowColor: '#14b8a6',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
   },
   info: {
     flex: 1,
@@ -107,7 +120,7 @@ const styles = StyleSheet.create({
   },
   meta: {
     marginTop: 4,
-    color: '#94a3b8',
+    color: homeTheme.subtle,
     fontSize: 10,
     fontWeight: '800',
     lineHeight: 13,
@@ -135,12 +148,33 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#ccfbf1',
+    backgroundColor: homeTheme.primaryBorder,
   },
   resumeText: {
-    color: '#0f766e',
+    color: homeTheme.primaryDeep,
     fontSize: 10,
     fontWeight: '900',
+  },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  playButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: homeTheme.primarySoft,
+    borderWidth: 1,
+    borderColor: '#99f6e4',
+  },
+  playButtonPressed: {
+    transform: [{ scale: 0.96 }],
+  },
+  playIcon: {
+    marginLeft: 2,
   },
   detailButton: {
     width: 24,

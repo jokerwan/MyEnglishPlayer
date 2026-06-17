@@ -4,11 +4,13 @@ import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/common/AppText';
+import { homeTheme } from '@/constants/homeTheme';
 import { layout } from '@/constants/layout';
 import type { StudyPlan } from '@/types/studyPlan';
 
 import { HomeLearningTree } from './HomeLearningTree';
 import { HomeSearchBar } from './HomeSearchBar';
+import { HomeTreeSectionHead } from './HomeLearningToolbar';
 
 type HomeLearningExpandedProps = {
   visible: boolean;
@@ -48,10 +50,7 @@ export function HomeLearningExpanded({
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
       <View style={[styles.screen, { paddingTop: insets.top }]}>
-        <LinearGradient
-          colors={['#edf7f4', '#f7faf9']}
-          style={StyleSheet.absoluteFill}
-        />
+        <LinearGradient colors={[...homeTheme.bgGradient]} style={StyleSheet.absoluteFill} />
 
         <View style={styles.header}>
           <Pressable style={styles.closeButton} onPress={onClose} accessibilityLabel="收起我的学习">
@@ -76,6 +75,7 @@ export function HomeLearningExpanded({
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.listCard}>
+            <HomeTreeSectionHead />
             <HomeLearningTree
               plans={plans}
               recentPlanId={recentPlanId}
@@ -97,7 +97,7 @@ export function HomeLearningExpanded({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#f7faf9',
+    backgroundColor: homeTheme.bg,
   },
   header: {
     flexDirection: 'row',
@@ -126,10 +126,10 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#ccfbf1',
+    borderColor: homeTheme.primaryBorder,
   },
   manageText: {
-    color: '#0f766e',
+    color: homeTheme.primaryDeep,
     fontSize: 12,
     fontWeight: '800',
   },
@@ -143,13 +143,13 @@ const styles = StyleSheet.create({
   listCard: {
     padding: 14,
     borderRadius: 24,
-    backgroundColor: '#ffffff',
+    backgroundColor: homeTheme.cardBg,
     borderWidth: 1,
-    borderColor: '#e8eef2',
-    shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.05,
-    shadowRadius: 20,
-    elevation: 2,
+    borderColor: homeTheme.lineStrong,
+    shadowColor: homeTheme.planShadow.color,
+    shadowOffset: homeTheme.planShadow.offset,
+    shadowOpacity: homeTheme.planShadow.opacity,
+    shadowRadius: homeTheme.planShadow.radius,
+    elevation: homeTheme.planShadow.elevation,
   },
 });
