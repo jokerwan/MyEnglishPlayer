@@ -7,12 +7,10 @@ import { mockUser } from '@/data/mockUser';
 import { useGreeting } from '@/hooks/useGreeting';
 
 const BUBBLES = [
-  { size: 34, left: 18, top: 30, opacity: 0.42 },
-  { size: 18, left: 112, top: 22, opacity: 0.42 },
-  { size: 48, right: 82, top: 42, opacity: 0.42 },
-  { size: 25, right: 24, top: 118, opacity: 0.42 },
-  { size: 62, left: 48, bottom: 18, opacity: 0.28 },
-  { size: 28, right: 126, bottom: 46, opacity: 0.35 },
+  { size: 18, left: 20, bottom: 28 },
+  { size: 12, left: 56, bottom: 16 },
+  { size: 26, right: 58, bottom: 24 },
+  { size: 10, right: 24, bottom: 14 },
 ] as const;
 
 export function HomeHero() {
@@ -21,11 +19,13 @@ export function HomeHero() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#ffffff', '#f3fffd', '#ecfeff']}
-        locations={[0, 0.52, 1]}
+        colors={['#ffffff', '#f4fffd', '#f7faf9']}
+        locations={[0, 0.62, 1]}
         style={StyleSheet.absoluteFill}
       />
+      <View style={styles.decorSquare} />
       <View style={styles.decorCircle} />
+
       <View style={styles.bubbleLayer} pointerEvents="none">
         {BUBBLES.map((bubble, index) => (
           <View
@@ -35,9 +35,8 @@ export function HomeHero() {
               {
                 width: bubble.size,
                 height: bubble.size,
-                opacity: bubble.opacity,
                 ...( 'left' in bubble ? { left: bubble.left } : { right: bubble.right }),
-                ...( 'top' in bubble ? { top: bubble.top } : { bottom: bubble.bottom }),
+                bottom: bubble.bottom,
               },
             ]}
           />
@@ -45,31 +44,14 @@ export function HomeHero() {
       </View>
 
       <View style={styles.inner}>
-        <View style={styles.topRow}>
-          <View style={styles.copy}>
-            <AppText variant="kicker">LISTEN · SPEAK · REPEAT</AppText>
-            <AppText variant="greeting" style={styles.greeting}>
-              {greeting}，{mockUser.name}
-            </AppText>
-            <AppText variant="subtitle" style={styles.subtitle}>
-              {motivation}
-            </AppText>
-          </View>
-
-          <View style={styles.streakBadge} accessibilityLabel={`连续学习 ${mockUser.streakDays} 天`}>
-            <LinearGradient
-              colors={['#2dd4bf', '#10b981', '#13b76e']}
-              locations={[0, 0.48, 1]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.streakCard}
-            >
-              <AppText style={styles.streakDays}>{mockUser.streakDays}</AppText>
-              <AppText style={styles.streakLabel}>连续学习</AppText>
-            </LinearGradient>
-          </View>
-        </View>
+        <AppText style={styles.kicker}>LISTEN · SPEAK · REPEAT</AppText>
+        <AppText style={styles.greeting}>
+          {greeting}，{mockUser.name}
+        </AppText>
+        <AppText style={styles.subtitle}>{motivation}</AppText>
       </View>
+
+      <View style={styles.fadeEdge} pointerEvents="none" />
     </View>
   );
 }
@@ -78,20 +60,26 @@ const styles = StyleSheet.create({
   container: {
     position: 'relative',
     overflow: 'hidden',
-    paddingTop: 38,
-    paddingBottom: 64,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 34,
-    borderBottomRightRadius: 34,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(226,232,240,0.78)',
+    paddingTop: 36,
+    paddingBottom: 54,
+    paddingHorizontal: 22,
+  },
+  decorSquare: {
+    position: 'absolute',
+    right: 22,
+    top: 30,
+    width: 84,
+    height: 84,
+    borderRadius: 30,
+    backgroundColor: 'rgba(20,184,166,0.12)',
+    transform: [{ rotate: '12deg' }],
   },
   decorCircle: {
     position: 'absolute',
-    right: -42,
-    bottom: -58,
-    width: 150,
-    height: 150,
+    right: -54,
+    bottom: -74,
+    width: 188,
+    height: 188,
     borderRadius: 999,
     backgroundColor: 'rgba(20,184,166,0.08)',
   },
@@ -104,59 +92,44 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: 'rgba(255,255,255,0.55)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.58)',
+    borderColor: 'rgba(255,255,255,0.6)',
+    opacity: 0.72,
   },
   inner: {
     position: 'relative',
-    zIndex: 1,
+    zIndex: 3,
   },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: 14,
-  },
-  copy: {
-    flex: 1,
+  kicker: {
+    color: '#0f766e',
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 0.6,
+    opacity: 0.72,
   },
   greeting: {
-    marginTop: 7,
+    marginTop: 13,
+    color: colors.textMain,
+    fontSize: 32,
+    lineHeight: 34,
+    fontWeight: '900',
+    letterSpacing: -1.2,
   },
   subtitle: {
-    marginTop: 8,
-    maxWidth: 300,
-  },
-  streakBadge: {
-    width: 78,
-    height: 86,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  streakCard: {
-    width: 72,
-    height: 82,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.24,
-    shadowRadius: 16,
-    elevation: 6,
-  },
-  streakDays: {
-    color: colors.white,
-    fontSize: 30,
-    fontWeight: '900',
-    lineHeight: 30,
-    marginTop: -4,
-  },
-  streakLabel: {
-    color: colors.white,
-    fontSize: 11,
-    fontWeight: '800',
     marginTop: 10,
-    opacity: 0.96,
+    maxWidth: 320,
+    color: colors.textMuted,
+    fontSize: 14,
+    lineHeight: 22,
+    fontWeight: '600',
+  },
+  fadeEdge: {
+    position: 'absolute',
+    left: '-6%',
+    right: '-6%',
+    bottom: -30,
+    height: 92,
+    borderRadius: 999,
+    backgroundColor: 'rgba(247,250,249,0.5)',
+    zIndex: 1,
   },
 });
