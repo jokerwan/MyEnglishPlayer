@@ -2,6 +2,7 @@ import type { HomeStats } from '@/types/home';
 
 export const mockHomeStats: HomeStats = {
   trendLabel: '稳定提升',
+  weeklyListening: '3.5h',
   metrics: [
     {
       id: 'listening',

@@ -11,6 +11,7 @@ export type HomeMetric = {
 
 export type HomeStats = {
   trendLabel: string;
+  weeklyListening: string;
   metrics: HomeMetric[];
 };
 

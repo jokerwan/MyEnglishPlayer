@@ -13,6 +13,7 @@ type HomeLearningModuleProps = {
   plans: StudyPlan[];
   planCount: number;
   resourceCount: number;
+  weeklyListening: string;
   subtitle: string;
   recentPlanId: string | null;
   expandedPlanIds: Set<string>;
@@ -29,6 +30,7 @@ export function HomeLearningModule({
   plans,
   planCount,
   resourceCount,
+  weeklyListening,
   subtitle,
   recentPlanId,
   expandedPlanIds,
@@ -42,7 +44,11 @@ export function HomeLearningModule({
 }: HomeLearningModuleProps) {
   return (
     <View style={styles.card}>
-      <HomeLearningSummary planCount={planCount} resourceCount={resourceCount} />
+      <HomeLearningSummary
+        planCount={planCount}
+        resourceCount={resourceCount}
+        weeklyListening={weeklyListening}
+      />
 
       <View style={styles.sectionDivider} />
 

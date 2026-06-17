@@ -9,6 +9,7 @@ import { HomeLearningExpanded } from '@/components/home/HomeLearningExpanded';
 import { HomeLearningEmpty, HomeLearningModule } from '@/components/home/HomeLearningModule';
 import { useHomeLearningDefaults } from '@/components/home/HomeLearningTree';
 import { layout } from '@/constants/layout';
+import { mockHomeStats } from '@/data/mockHome';
 import { usePlayer, useToast } from '@/hooks/useAppContext';
 import { useAppData } from '@/hooks/useAppData';
 import { formatHomeResumeSubtitle, getHomeLearningCounts } from '@/utils/homeLearning';
@@ -126,6 +127,7 @@ export default function HomeScreen() {
               plans={learningPlans}
               planCount={learningCounts.planCount}
               resourceCount={learningCounts.resourceCount}
+              weeklyListening={mockHomeStats.weeklyListening}
               subtitle={resumeSubtitle}
               recentPlanId={recentPlanId}
               expandedPlanIds={expandedPlanIds}

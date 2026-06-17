@@ -6,32 +6,43 @@ import { AppText } from '@/components/common/AppText';
 type HomeLearningSummaryProps = {
   planCount: number;
   resourceCount: number;
+  weeklyListening: string;
 };
 
-export function HomeLearningSummary({ planCount, resourceCount }: HomeLearningSummaryProps) {
+type SummaryItemProps = {
+  icon: 'folder-open-o' | 'headphones' | 'clock-o';
+  value: string;
+  label: string;
+};
+
+function SummaryItem({ icon, value, label }: SummaryItemProps) {
+  return (
+    <View style={styles.item}>
+      <View style={styles.iconWrap}>
+        <FontAwesome name={icon} size={13} color="#0f766e" />
+      </View>
+      <AppText style={styles.value} numberOfLines={1}>
+        {value}
+      </AppText>
+      <AppText style={styles.label} numberOfLines={2}>
+        {label}
+      </AppText>
+    </View>
+  );
+}
+
+export function HomeLearningSummary({
+  planCount,
+  resourceCount,
+  weeklyListening,
+}: HomeLearningSummaryProps) {
   return (
     <View style={styles.container}>
-      <View style={styles.stat}>
-        <View style={styles.iconWrap}>
-          <FontAwesome name="folder-open-o" size={14} color="#0f766e" />
-        </View>
-        <View style={styles.copy}>
-          <AppText style={styles.value}>{planCount}</AppText>
-          <AppText style={styles.label}>合集正在学</AppText>
-        </View>
-      </View>
-
+      <SummaryItem icon="folder-open-o" value={String(planCount)} label="合集正在学" />
       <View style={styles.divider} />
-
-      <View style={styles.stat}>
-        <View style={styles.iconWrap}>
-          <FontAwesome name="headphones" size={14} color="#0f766e" />
-        </View>
-        <View style={styles.copy}>
-          <AppText style={styles.value}>{resourceCount}</AppText>
-          <AppText style={styles.label}>资源进行中</AppText>
-        </View>
-      </View>
+      <SummaryItem icon="headphones" value={String(resourceCount)} label="资源进行中" />
+      <View style={styles.divider} />
+      <SummaryItem icon="clock-o" value={weeklyListening} label="本周听力" />
     </View>
   );
 }
@@ -40,45 +51,44 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'stretch',
-    paddingVertical: 4,
+    paddingVertical: 2,
   },
-  stat: {
+  item: {
     flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
     minWidth: 0,
+    paddingHorizontal: 4,
   },
   iconWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#f0fdfa',
     borderWidth: 1,
     borderColor: '#ccfbf1',
   },
-  copy: {
-    flex: 1,
-    minWidth: 0,
-  },
   value: {
+    marginTop: 8,
     color: '#0f172a',
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '900',
-    lineHeight: 24,
-    letterSpacing: -0.6,
+    lineHeight: 22,
+    letterSpacing: -0.5,
+    textAlign: 'center',
   },
   label: {
-    marginTop: 2,
+    marginTop: 3,
     color: '#64748b',
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
+    lineHeight: 13,
+    textAlign: 'center',
   },
   divider: {
     width: 1,
-    marginHorizontal: 14,
+    marginVertical: 6,
     backgroundColor: '#e8eef2',
   },
 });
