@@ -11,7 +11,7 @@ type HomeLearningSummaryProps = {
 };
 
 type SummaryItemProps = {
-  icon: 'folder-open-o' | 'headphones' | 'clock-o';
+  icon: 'clone' | 'folder-open-o' | 'clock-o';
   value: string;
   label: string;
 };
@@ -39,9 +39,9 @@ export function HomeLearningSummary({
 }: HomeLearningSummaryProps) {
   return (
     <View style={styles.container}>
-      <SummaryItem icon="folder-open-o" value={String(planCount)} label="合集正在学" />
+      <SummaryItem icon="clone" value={String(planCount)} label="合集正在学" />
       <View style={styles.divider} />
-      <SummaryItem icon="headphones" value={String(resourceCount)} label="资源进行中" />
+      <SummaryItem icon="folder-open-o" value={String(resourceCount)} label="资源进行中" />
       <View style={styles.divider} />
       <SummaryItem icon="clock-o" value={weeklyListening} label="本周听力" />
     </View>
