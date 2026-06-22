@@ -1,3 +1,4 @@
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
@@ -12,9 +13,35 @@ type HomeRecommendedResourcesProps = {
   onItemPress: (item: HomeRecommendation) => void;
 };
 
+function RecommendationCover({ item }: { item: HomeRecommendation }) {
+  return (
+    <View style={styles.coverWrap}>
+      <LinearGradient
+        colors={item.gradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+      <LinearGradient
+        colors={['transparent', 'rgba(15,23,42,0.35)']}
+        style={styles.coverOverlay}
+      />
+      <View style={styles.coverIconWrap}>
+        <FontAwesome name={item.icon} size={22} color="rgba(255,255,255,0.92)" />
+      </View>
+      <View style={styles.coverAccent} />
+      <View style={styles.coverDots}>
+        <View style={styles.coverDot} />
+        <View style={[styles.coverDot, styles.coverDotMid]} />
+        <View style={[styles.coverDot, styles.coverDotSmall]} />
+      </View>
+    </View>
+  );
+}
+
 export function HomeRecommendedResources({ onMorePress, onItemPress }: HomeRecommendedResourcesProps) {
   return (
-    <View style={styles.section}>
+    <View>
       <HomeSectionHeader title="推荐资源" onMorePress={onMorePress} />
 
       <ScrollView
@@ -28,12 +55,7 @@ export function HomeRecommendedResources({ onMorePress, onItemPress }: HomeRecom
             style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
             onPress={() => onItemPress(item)}
           >
-            <LinearGradient
-              colors={item.gradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.cover}
-            />
+            <RecommendationCover item={item} />
             <View style={styles.cardBody}>
               <AppText style={styles.cardTitle} numberOfLines={2}>
                 {item.title}
@@ -48,26 +70,13 @@ export function HomeRecommendedResources({ onMorePress, onItemPress }: HomeRecom
 }
 
 const styles = StyleSheet.create({
-  section: {
-    paddingHorizontal: 18,
-    paddingVertical: 18,
-    borderRadius: homeTheme.cardRadius,
-    backgroundColor: homeTheme.cardBg,
-    borderWidth: 1,
-    borderColor: homeTheme.cardBorder,
-    shadowColor: homeTheme.shadow.color,
-    shadowOffset: homeTheme.shadow.offset,
-    shadowOpacity: homeTheme.shadow.opacity,
-    shadowRadius: homeTheme.shadow.radius,
-    elevation: homeTheme.shadow.elevation,
-  },
   scrollContent: {
     gap: 12,
-    paddingRight: 4,
+    paddingRight: 2,
   },
   card: {
-    width: 132,
-    borderRadius: 18,
+    width: 140,
+    borderRadius: 14,
     overflow: 'hidden',
     backgroundColor: '#f8fafc',
     borderWidth: 1,
@@ -77,9 +86,58 @@ const styles = StyleSheet.create({
     opacity: 0.88,
     transform: [{ scale: 0.98 }],
   },
-  cover: {
-    height: 88,
-    width: '100%',
+  coverWrap: {
+    height: 92,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  coverOverlay: {
+    ...StyleSheet.absoluteFill,
+  },
+  coverIconWrap: {
+    position: 'absolute',
+    left: 12,
+    bottom: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.28)',
+  },
+  coverAccent: {
+    position: 'absolute',
+    right: -12,
+    top: -18,
+    width: 64,
+    height: 64,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.14)',
+  },
+  coverDots: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    gap: 4,
+  },
+  coverDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.55)',
+    alignSelf: 'flex-end',
+  },
+  coverDotMid: {
+    width: 5,
+    height: 5,
+    opacity: 0.75,
+  },
+  coverDotSmall: {
+    width: 4,
+    height: 4,
+    opacity: 0.55,
   },
   cardBody: {
     paddingHorizontal: 10,

@@ -4,10 +4,9 @@ import { useCallback, useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { HomeContentPanel } from '@/components/home/HomeContentPanel';
 import { HomeHero } from '@/components/home/HomeHero';
-import { HomeLearningStatsCard } from '@/components/home/HomeLearningStatsCard';
-import { HomeLearningTimeline } from '@/components/home/HomeLearningTimeline';
-import { HomeRecommendedResources } from '@/components/home/HomeRecommendedResources';
+import { HomeLearningEmpty } from '@/components/home/HomeLearningModule';
 import { useHomeLearningDefaults } from '@/components/home/HomeLearningTree';
 import { homeTheme } from '@/constants/homeTheme';
 import { layout } from '@/constants/layout';
@@ -76,23 +75,21 @@ export default function HomeScreen() {
         <HomeHero onNotificationsPress={() => showToast('暂无新通知')} />
 
         <View style={styles.content}>
-          <HomeLearningStatsCard
-            planCount={learningCounts.planCount}
-            resourceCount={learningCounts.resourceCount}
-            weeklyListening={mockHomeStats.weeklyListening}
-          />
-
-          <HomeLearningTimeline
-            plans={learningPlans}
-            activePlanId={recentPlanId}
-            onMorePress={handleLearningMorePress}
-            onPlanPress={handlePlanPress}
-          />
-
-          <HomeRecommendedResources
-            onMorePress={handleRecommendMorePress}
-            onItemPress={handleRecommendPress}
-          />
+          {learningPlans.length > 0 ? (
+            <HomeContentPanel
+              planCount={learningCounts.planCount}
+              resourceCount={learningCounts.resourceCount}
+              weeklyListening={mockHomeStats.weeklyListening}
+              plans={learningPlans}
+              activePlanId={recentPlanId}
+              onLearningMorePress={handleLearningMorePress}
+              onPlanPress={handlePlanPress}
+              onRecommendMorePress={handleRecommendMorePress}
+              onRecommendPress={handleRecommendPress}
+            />
+          ) : (
+            <HomeLearningEmpty onBrowseResources={() => router.push('/resources')} />
+          )}
 
           <View style={styles.safeBottom} />
         </View>
@@ -111,7 +108,8 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 16,
-    gap: 14,
+    marginTop: -22,
+    zIndex: 4,
   },
   safeBottom: {
     height: layout.homeSafeBottom,

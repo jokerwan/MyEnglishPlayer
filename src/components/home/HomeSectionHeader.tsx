@@ -21,7 +21,7 @@ export function HomeSectionHeader({
       {onMorePress ? (
         <Pressable style={styles.moreButton} onPress={onMorePress} hitSlop={8}>
           <AppText style={styles.moreText}>{moreLabel}</AppText>
-          <FontAwesome name="angle-right" size={14} color={homeTheme.subtle} />
+          <FontAwesome name="angle-right" size={13} color={homeTheme.primaryDeep} />
         </Pressable>
       ) : null}
     </View>
@@ -33,11 +33,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 14,
+    marginBottom: 12,
   },
   title: {
     color: homeTheme.ink,
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '900',
     letterSpacing: -0.3,
   },
@@ -47,8 +47,8 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   moreText: {
-    color: homeTheme.subtle,
+    color: homeTheme.primaryDeep,
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '800',
   },
 });

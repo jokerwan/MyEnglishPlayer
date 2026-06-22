@@ -20,7 +20,7 @@ function SummaryItem({ icon, value, label }: SummaryItemProps) {
   return (
     <View style={styles.item}>
       <View style={styles.iconWrap}>
-        <FontAwesome name={icon} size={14} color={homeTheme.primaryDeep} />
+        <FontAwesome name={icon} size={15} color={homeTheme.primaryDeep} />
       </View>
       <AppText style={styles.value} numberOfLines={1}>
         {value}
@@ -52,7 +52,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'stretch',
-    paddingVertical: 4,
   },
   item: {
     flex: 1,
@@ -61,8 +60,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   iconWrap: {
-    width: 34,
-    height: 34,
+    width: 36,
+    height: 36,
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
@@ -71,16 +70,16 @@ const styles = StyleSheet.create({
     borderColor: homeTheme.primaryBorder,
   },
   value: {
-    marginTop: 9,
+    marginTop: 8,
     color: homeTheme.ink,
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '900',
-    lineHeight: 24,
-    letterSpacing: -0.6,
+    lineHeight: 22,
+    letterSpacing: -0.5,
     textAlign: 'center',
   },
   label: {
-    marginTop: 4,
+    marginTop: 3,
     color: homeTheme.muted,
     fontSize: 11,
     fontWeight: '700',
@@ -89,7 +88,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     width: 1,
-    marginVertical: 8,
+    marginVertical: 6,
     backgroundColor: '#e8eef2',
   },
 });

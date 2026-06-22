@@ -11,6 +11,7 @@ import { HomeSectionHeader } from './HomeSectionHeader';
 type HomeLearningTimelineProps = {
   plans: StudyPlan[];
   activePlanId: string | null;
+  maxItems?: number;
   onMorePress: () => void;
   onPlanPress: (plan: StudyPlan) => void;
 };
@@ -20,6 +21,18 @@ function formatTimelineMeta(plan: StudyPlan) {
   const total = plan.resources.length;
   const done = getDoneResourceCount(plan);
   return `进度 ${progress}% | ${done}/${total} 资源`;
+}
+
+function DashedConnector({ height }: { height: number }) {
+  const dashCount = Math.max(4, Math.floor(height / 5));
+
+  return (
+    <View style={[styles.dashedConnector, { height }]}>
+      {Array.from({ length: dashCount }).map((_, index) => (
+        <View key={index} style={styles.dash} />
+      ))}
+    </View>
+  );
 }
 
 type TimelineRowProps = {
@@ -36,11 +49,11 @@ function TimelineRow({ plan, isActive, isLast, onPress }: TimelineRowProps) {
         <View style={[styles.node, isActive ? styles.nodeActive : styles.nodeIdle]}>
           <FontAwesome
             name={isActive ? 'headphones' : 'file-text-o'}
-            size={isActive ? 18 : 16}
+            size={isActive ? 18 : 15}
             color={isActive ? '#ffffff' : homeTheme.primaryDeep}
           />
         </View>
-        {!isLast ? <View style={styles.connector} /> : null}
+        {!isLast ? <DashedConnector height={28} /> : null}
       </View>
 
       <Pressable
@@ -73,12 +86,15 @@ function TimelineRow({ plan, isActive, isLast, onPress }: TimelineRowProps) {
 export function HomeLearningTimeline({
   plans,
   activePlanId,
+  maxItems,
   onMorePress,
   onPlanPress,
 }: HomeLearningTimelineProps) {
-  if (!plans.length) {
+  const visiblePlans = maxItems ? plans.slice(0, maxItems) : plans;
+
+  if (!visiblePlans.length) {
     return (
-      <View style={styles.card}>
+      <View>
         <HomeSectionHeader title="学习树" onMorePress={onMorePress} />
         <AppText style={styles.emptyText}>加入学习后，进度会显示在这里</AppText>
       </View>
@@ -86,15 +102,15 @@ export function HomeLearningTimeline({
   }
 
   return (
-    <View style={styles.card}>
+    <View>
       <HomeSectionHeader title="学习树" onMorePress={onMorePress} />
       <View style={styles.list}>
-        {plans.map((plan, index) => (
+        {visiblePlans.map((plan, index) => (
           <TimelineRow
             key={plan.id}
             plan={plan}
             isActive={plan.id === activePlanId}
-            isLast={index === plans.length - 1}
+            isLast={index === visiblePlans.length - 1}
             onPress={() => onPlanPress(plan)}
           />
         ))}
@@ -104,18 +120,6 @@ export function HomeLearningTimeline({
 }
 
 const styles = StyleSheet.create({
-  card: {
-    padding: 18,
-    borderRadius: homeTheme.cardRadius,
-    backgroundColor: homeTheme.cardBg,
-    borderWidth: 1,
-    borderColor: homeTheme.cardBorder,
-    shadowColor: homeTheme.shadow.color,
-    shadowOffset: homeTheme.shadow.offset,
-    shadowOpacity: homeTheme.shadow.opacity,
-    shadowRadius: homeTheme.shadow.radius,
-    elevation: homeTheme.shadow.elevation,
-  },
   list: {
     gap: 0,
   },
@@ -125,12 +129,12 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   railCol: {
-    width: 44,
+    width: 40,
     alignItems: 'center',
   },
   node: {
-    width: 44,
-    height: 44,
+    width: 40,
+    height: 40,
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
@@ -138,9 +142,9 @@ const styles = StyleSheet.create({
   nodeActive: {
     backgroundColor: homeTheme.primary,
     shadowColor: homeTheme.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.24,
-    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.22,
+    shadowRadius: 12,
     elevation: 3,
   },
   nodeIdle: {
@@ -148,22 +152,27 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: homeTheme.primaryBorder,
   },
-  connector: {
+  dashedConnector: {
     width: 2,
-    flex: 1,
-    minHeight: 24,
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginVertical: 4,
-    borderRadius: 999,
-    backgroundColor: '#99f6e4',
-    opacity: 0.65,
+    overflow: 'hidden',
+  },
+  dash: {
+    width: 2,
+    height: 4,
+    borderRadius: 1,
+    backgroundColor: '#5eead4',
+    opacity: 0.75,
   },
   row: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    minHeight: 44,
-    paddingBottom: 22,
+    minHeight: 40,
+    paddingBottom: 20,
   },
   rowPressed: {
     opacity: 0.78,
@@ -199,7 +208,7 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   rowMeta: {
-    marginTop: 5,
+    marginTop: 4,
     color: homeTheme.subtle,
     fontSize: 12,
     fontWeight: '700',
